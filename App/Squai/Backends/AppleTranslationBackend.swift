@@ -27,7 +27,17 @@ struct AppleTranslationBackend: TranslationBackend {
         } catch {
             throw TranslationError.languagePackMissing(source: direction.source, target: direction.target)
         }
-        let response = try await session.translate(text)
+        let response: TranslationSession.Response
+        do {
+            response = try await session.translate(text)
+        } catch {
+            // Observed on macOS 26.5: status can read `.installed` while the session still reports notInstalled.
+            NSLog("squai: apple translate failed: %@", String(describing: error))
+            if String(describing: error).contains("notInstalled") {
+                throw TranslationError.languagePackMissing(source: direction.source, target: direction.target)
+            }
+            throw error
+        }
         let out = response.targetText.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !out.isEmpty else { throw TranslationError.empty }
         return TranslationResult(text: out, note: nil, backend: id)

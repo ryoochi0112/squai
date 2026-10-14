@@ -43,6 +43,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     func runTranslate(premium: Bool) {
         guard let skill = registry.skill(id: "translate.ja-en") else { return }
+        guard SelectionCapture.isTrusted else {
+            NSLog("squai: Accessibility not granted for this build")
+            pet.set(state: .waiting)
+            bubble.show(.error("Accessibility access is off for this build of squai. Ad-hoc signed Debug builds lose the grant on every rebuild: open System Settings → Privacy & Security → Accessibility, remove squai, and add it again."))
+            SelectionCapture.requestAccessibilityIfNeeded()
+            return
+        }
         Task { @MainActor in
             pet.set(state: .running)
             do {
@@ -57,9 +64,25 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 pet.set(state: .waiting)
                 showSettings()
             } catch {
+                NSLog("squai: translate failed: %@", String(describing: error))
                 pet.set(state: .failed)
-                bubble.show(.error(String(describing: error)))
+                bubble.show(.error(Self.describe(error)))
             }
+        }
+    }
+
+    static func describe(_ error: Error) -> String {
+        switch error {
+        case SelectionCapture.CaptureError.noSelection(let detail):
+            return "No selected text was found. Select text first, then press the hotkey.\n\nDiagnostics: \(detail)"
+        case TranslationError.unsupported(let s, let t):
+            return "Apple Translation does not support \(s)→\(t) on this Mac."
+        case TranslationError.http(let status, let body):
+            return "Claude API error \(status): \(body.prefix(200))"
+        case TranslationError.empty:
+            return "The translation came back empty."
+        default:
+            return String(describing: error)
         }
     }
 
@@ -74,8 +97,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             } catch TranslationError.missingAPIKey {
                 showSettings()
             } catch {
+                NSLog("squai: premium translate failed: %@", String(describing: error))
                 pet.set(state: .failed)
-                bubble.show(.error(String(describing: error)))
+                bubble.show(.error(Self.describe(error)))
             }
         }
     }

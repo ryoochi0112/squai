@@ -45,6 +45,7 @@ No App Store sandbox, no `/hatch` image-to-sprite generation, no chat with the p
 - Electron apps and some browsers report AX selection inconsistently; AC3 is the gate, ⌘C fallback is the mitigation.
 - Carbon hotkeys are deprecated-but-working; keep the hotkey layer behind one type so it can be swapped.
 - Codex pet row semantics are from third-party docs; treat row order as a config constant.
+- Ad-hoc signed Debug builds lose the Accessibility grant on every rebuild (TCC keys on the binary hash). Found 2026-10-14. Mitigation: set a signing team in Xcode; the app now reports untrusted state in the bubble.
 
 ## Assumptions made (not in the brief)
 Default hotkey ⌥⌘T; 8 fps sprite playback; bubble auto-hide 12 s; macOS 26.0 deployment target (headless Translation API); bundle id `com.squai.app`; non-streaming Claude call in v1.

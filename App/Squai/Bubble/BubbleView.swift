@@ -35,7 +35,7 @@ struct BubbleView: View {
                 HStack { Spacer(); Button("Download \(s)/\(t)") { onDownloadPack() } }
             case .error(let msg):
                 Text("Something went wrong").font(.headline)
-                Text(msg).font(.caption).foregroundStyle(.secondary).lineLimit(4)
+                Text(msg).font(.caption).foregroundStyle(.secondary).textSelection(.enabled)
             }
         }
         .padding(12)

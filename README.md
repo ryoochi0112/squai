@@ -30,6 +30,12 @@ make run      # opens build/DerivedData/.../squai.app
 
 Or open `Squai.xcodeproj` and run the `Squai` scheme.
 
+Accessibility permission is required for selection capture. Debug builds are
+ad-hoc signed unless you set a team in Xcode (Signing & Capabilities), and macOS
+ties the grant to the exact binary, so after each rebuild remove and re-add
+squai under System Settings → Privacy & Security → Accessibility. Setting a
+team (a free Apple ID "Personal Team" works) gives a stable signature and avoids this.
+
 ## Pets
 
 Drop a Codex-style pet folder (`pet.json` + 1536×1872 PNG/WebP atlas, 8 cols × 9
