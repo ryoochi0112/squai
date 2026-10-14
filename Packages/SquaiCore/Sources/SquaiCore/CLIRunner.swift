@@ -21,7 +21,7 @@ public enum CLIError: Error, Equatable, Sendable {
     case nonZeroExit(code: Int32, stderr: String)
 }
 
-public struct CLIRunner: Sendable {
+public struct CLIRunner: CLIRunning {
     public init() {}
 
     public func run(_ inv: CLIInvocation) async throws -> CLIResult {

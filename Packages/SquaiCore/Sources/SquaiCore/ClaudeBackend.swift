@@ -77,6 +77,22 @@ public enum ClaudeAPI {
         return req
     }
 
+    public static func makePromptRequest(system: String, user: String, model: String) -> Request {
+        Request(model: model, max_tokens: 1024, system: system,
+                messages: [.init(role: "user", content: user)],
+                output_config: .init(effort: "low"))
+    }
+
+    public static func parseText(_ data: Data) throws -> String {
+        let response = try JSONDecoder().decode(Response.self, from: data)
+        if response.stop_reason == "refusal" {
+            throw BackendError.failed(.claude, "refused")
+        }
+        let text = response.text.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !text.isEmpty else { throw BackendError.empty }
+        return text
+    }
+
     public static func parseTranslation(_ data: Data, backendID: String) throws -> TranslationResult {
         let response = try JSONDecoder().decode(Response.self, from: data)
         if let reason = response.stop_reason, reason == "refusal" {
