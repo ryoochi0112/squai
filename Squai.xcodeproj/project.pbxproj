@@ -23,7 +23,6 @@
 		B3198E9AF304BA4A9510FAE0 /* SettingsWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42A4F0040250550C736D26B1 /* SettingsWindowController.swift */; };
 		B87B1C919CD6E157D6A4E371 /* KeyboardShortcuts in Frameworks */ = {isa = PBXBuildFile; productRef = E052446F4256FF60BB842473 /* KeyboardShortcuts */; };
 		BBCB17C3402B62C3A3A0A765 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13C6E4669DFB994B140E5BEC /* AppDelegate.swift */; };
-		D635AD771F3C50B1835F87A2 /* AppleTranslationBackend.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2DC984F0311C36F92A8860B /* AppleTranslationBackend.swift */; };
 		DA55195866999715DE834CEF /* PetController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 067E64B518761237097852BE /* PetController.swift */; };
 		F0E0CD7F4AB28860974B28C9 /* BubbleController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 654162E9595E49EF4A6EABDD /* BubbleController.swift */; };
 /* End PBXBuildFile section */
@@ -47,7 +46,6 @@
 		D09BC99758653CC3E34D5855 /* SquadController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SquadController.swift; sourceTree = "<group>"; };
 		E7F73D932BB52666DD0FE67B /* Squai.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Squai.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		EF92DE0E38DBB3B95A760204 /* SelectionCapture.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectionCapture.swift; sourceTree = "<group>"; };
-		F2DC984F0311C36F92A8860B /* AppleTranslationBackend.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppleTranslationBackend.swift; sourceTree = "<group>"; };
 		F9AAF00D6E4EC657AED4CFF5 /* BubbleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BubbleView.swift; sourceTree = "<group>"; };
 		FD5FA0690B70FA19D58B41A2 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -84,7 +82,6 @@
 				9CBE189323AAAB828D227AA5 /* Preferences.swift */,
 				3A29F3217CE02F09E721288C /* Squai.entitlements */,
 				A59E6DDB466F255B9AD074E8 /* StatusItemController.swift */,
-				83F50C47992118A8447A4A4E /* Backends */,
 				F54038D87DD1351C84B9F8AE /* Bubble */,
 				A2841CCF7A0698C282FEC72C /* Capture */,
 				2F35CE4E1C8B0F01FB59B637 /* Pet */,
@@ -129,14 +126,6 @@
 				42A4F0040250550C736D26B1 /* SettingsWindowController.swift */,
 			);
 			path = Settings;
-			sourceTree = "<group>";
-		};
-		83F50C47992118A8447A4A4E /* Backends */ = {
-			isa = PBXGroup;
-			children = (
-				F2DC984F0311C36F92A8860B /* AppleTranslationBackend.swift */,
-			);
-			path = Backends;
 			sourceTree = "<group>";
 		};
 		A2841CCF7A0698C282FEC72C /* Capture */ = {
@@ -258,7 +247,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				BBCB17C3402B62C3A3A0A765 /* AppDelegate.swift in Sources */,
-				D635AD771F3C50B1835F87A2 /* AppleTranslationBackend.swift in Sources */,
 				F0E0CD7F4AB28860974B28C9 /* BubbleController.swift in Sources */,
 				598A4838E8555110AC35C2A1 /* BubbleView.swift in Sources */,
 				B26C6B998B5F0B1EBC1DB8D9 /* Hotkeys.swift in Sources */,

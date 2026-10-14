@@ -1,5 +1,4 @@
 import SwiftUI
-import KeyboardShortcuts
 import ServiceManagement
 
 struct SettingsView: View {
@@ -9,10 +8,6 @@ struct SettingsView: View {
 
     var body: some View {
         Form {
-            Section("Hotkeys") {
-                KeyboardShortcuts.Recorder("Translate selection (on-device)", name: .translateSelection)
-                KeyboardShortcuts.Recorder("Translate selection (Claude)", name: .translateSelectionPremium)
-            }
             Section("Claude") {
                 SecureField("Anthropic API key", text: $apiKey)
                 HStack {
@@ -23,7 +18,7 @@ struct SettingsView: View {
                     }
                     if saved { Text("Saved").foregroundStyle(.secondary) }
                 }
-                Text("Used only when you press the Claude hotkey or “Ask Claude”. Model: claude-haiku-5-5.")
+                Text("Used only when the Claude CLI is not available. Model: claude-haiku-5-5.")
                     .font(.caption).foregroundStyle(.secondary)
             }
             Section("General") {
