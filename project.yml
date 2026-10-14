@@ -1,0 +1,52 @@
+name: Squai
+options:
+  bundleIdPrefix: com.squai
+  deploymentTarget:
+    macOS: "26.0"
+  xcodeVersion: "26.0"
+  createIntermediateGroups: true
+  generateEmptyDirectories: true
+settings:
+  base:
+    SWIFT_VERSION: "5.0"
+    MACOSX_DEPLOYMENT_TARGET: "26.0"
+    ENABLE_HARDENED_RUNTIME: YES
+    CODE_SIGN_STYLE: Automatic
+packages:
+  SquaiCore:
+    path: Packages/SquaiCore
+  KeyboardShortcuts:
+    url: https://github.com/sindresorhus/KeyboardShortcuts
+    from: "2.0.0"
+targets:
+  Squai:
+    type: application
+    platform: macOS
+    sources:
+      - path: App/Squai
+        excludes: ["Resources/**"]
+      - path: App/Squai/Resources/Pets
+        type: folder
+        buildPhase: resources
+    dependencies:
+      - package: SquaiCore
+      - package: KeyboardShortcuts
+    info:
+      path: App/Squai/Info.plist
+      properties:
+        CFBundleName: squai
+        CFBundleDisplayName: squai
+        CFBundleShortVersionString: "0.1.0"
+        CFBundleVersion: "1"
+        LSUIElement: true
+        LSMinimumSystemVersion: "26.0"
+        NSHumanReadableCopyright: "© 2026 Ryo Ochi"
+        NSAppleEventsUsageDescription: "squai reads the selected text to translate it."
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.squai.app
+        PRODUCT_NAME: squai
+        CODE_SIGN_ENTITLEMENTS: App/Squai/Squai.entitlements
+        ENABLE_APP_SANDBOX: NO
+    scheme:
+      testTargets: []

@@ -1,0 +1,483 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		0434707C56F11D7D9AB5863E /* Preferences.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9CBE189323AAAB828D227AA5 /* Preferences.swift */; };
+		1198B4FF795252432CB82202 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49DCA44985F35F01F6DF20E8 /* SettingsView.swift */; };
+		1A80492D2BB635E86EB9EF6A /* Keychain.swift in Sources */ = {isa = PBXBuildFile; fileRef = 624037BF6D7668B1E3694EA9 /* Keychain.swift */; };
+		264FCB9D262A145DF16EAF89 /* SquaiCore in Frameworks */ = {isa = PBXBuildFile; productRef = A23A428EAD901B8D5B2826B2 /* SquaiCore */; };
+		3B77657DD48AC5123643C30C /* SelectionCapture.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF92DE0E38DBB3B95A760204 /* SelectionCapture.swift */; };
+		598A4838E8555110AC35C2A1 /* BubbleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9AAF00D6E4EC657AED4CFF5 /* BubbleView.swift */; };
+		63E3224E013CFC15CB96E2BD /* PetSpriteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9130D86962D1221C2DA6D8A3 /* PetSpriteView.swift */; };
+		69031F74FFA6D463C50CCDF4 /* PetPanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85E5E38477B6BA50573FB755 /* PetPanel.swift */; };
+		8CE878129506BA05B2947F3E /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = FD5FA0690B70FA19D58B41A2 /* main.swift */; };
+		9FB44A362E7D3AE708849A20 /* StatusItemController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A59E6DDB466F255B9AD074E8 /* StatusItemController.swift */; };
+		B0E68617CFBDBDC304563538 /* Pets in Resources */ = {isa = PBXBuildFile; fileRef = 8DF76DBD1DB96118754B161E /* Pets */; };
+		B26C6B998B5F0B1EBC1DB8D9 /* Hotkeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EE63116F23A472F0FB705C6 /* Hotkeys.swift */; };
+		B3198E9AF304BA4A9510FAE0 /* SettingsWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42A4F0040250550C736D26B1 /* SettingsWindowController.swift */; };
+		B87B1C919CD6E157D6A4E371 /* KeyboardShortcuts in Frameworks */ = {isa = PBXBuildFile; productRef = E052446F4256FF60BB842473 /* KeyboardShortcuts */; };
+		BBCB17C3402B62C3A3A0A765 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13C6E4669DFB994B140E5BEC /* AppDelegate.swift */; };
+		D635AD771F3C50B1835F87A2 /* AppleTranslationBackend.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2DC984F0311C36F92A8860B /* AppleTranslationBackend.swift */; };
+		DA55195866999715DE834CEF /* PetController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 067E64B518761237097852BE /* PetController.swift */; };
+		F0E0CD7F4AB28860974B28C9 /* BubbleController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 654162E9595E49EF4A6EABDD /* BubbleController.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		067E64B518761237097852BE /* PetController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PetController.swift; sourceTree = "<group>"; };
+		13C6E4669DFB994B140E5BEC /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		3A29F3217CE02F09E721288C /* Squai.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Squai.entitlements; sourceTree = "<group>"; };
+		42A4F0040250550C736D26B1 /* SettingsWindowController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsWindowController.swift; sourceTree = "<group>"; };
+		49DCA44985F35F01F6DF20E8 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		624037BF6D7668B1E3694EA9 /* Keychain.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Keychain.swift; sourceTree = "<group>"; };
+		654162E9595E49EF4A6EABDD /* BubbleController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BubbleController.swift; sourceTree = "<group>"; };
+		7AC185B7F83C7A76C2742C92 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		85E5E38477B6BA50573FB755 /* PetPanel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PetPanel.swift; sourceTree = "<group>"; };
+		8DF76DBD1DB96118754B161E /* Pets */ = {isa = PBXFileReference; lastKnownFileType = folder; name = Pets; path = App/Squai/Resources/Pets; sourceTree = SOURCE_ROOT; };
+		9130D86962D1221C2DA6D8A3 /* PetSpriteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PetSpriteView.swift; sourceTree = "<group>"; };
+		9CBE189323AAAB828D227AA5 /* Preferences.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Preferences.swift; sourceTree = "<group>"; };
+		9EE63116F23A472F0FB705C6 /* Hotkeys.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Hotkeys.swift; sourceTree = "<group>"; };
+		A55BE6F7284385D6CE7DCD58 /* SquaiCore */ = {isa = PBXFileReference; lastKnownFileType = folder; name = SquaiCore; path = Packages/SquaiCore; sourceTree = SOURCE_ROOT; };
+		A59E6DDB466F255B9AD074E8 /* StatusItemController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusItemController.swift; sourceTree = "<group>"; };
+		E7F73D932BB52666DD0FE67B /* Squai.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Squai.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		EF92DE0E38DBB3B95A760204 /* SelectionCapture.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectionCapture.swift; sourceTree = "<group>"; };
+		F2DC984F0311C36F92A8860B /* AppleTranslationBackend.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppleTranslationBackend.swift; sourceTree = "<group>"; };
+		F9AAF00D6E4EC657AED4CFF5 /* BubbleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BubbleView.swift; sourceTree = "<group>"; };
+		FD5FA0690B70FA19D58B41A2 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		318DBC1DF5B6D6C94F44B21A /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				264FCB9D262A145DF16EAF89 /* SquaiCore in Frameworks */,
+				B87B1C919CD6E157D6A4E371 /* KeyboardShortcuts in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		299AE6862DF1471C82C67F1E /* Squai */ = {
+			isa = PBXGroup;
+			children = (
+				13C6E4669DFB994B140E5BEC /* AppDelegate.swift */,
+				9EE63116F23A472F0FB705C6 /* Hotkeys.swift */,
+				7AC185B7F83C7A76C2742C92 /* Info.plist */,
+				624037BF6D7668B1E3694EA9 /* Keychain.swift */,
+				FD5FA0690B70FA19D58B41A2 /* main.swift */,
+				9CBE189323AAAB828D227AA5 /* Preferences.swift */,
+				3A29F3217CE02F09E721288C /* Squai.entitlements */,
+				A59E6DDB466F255B9AD074E8 /* StatusItemController.swift */,
+				83F50C47992118A8447A4A4E /* Backends */,
+				F54038D87DD1351C84B9F8AE /* Bubble */,
+				A2841CCF7A0698C282FEC72C /* Capture */,
+				2F35CE4E1C8B0F01FB59B637 /* Pet */,
+				E86E41A37266DEB381792445 /* Resources */,
+				43363777EB7F75BABEA2F3E3 /* Settings */,
+			);
+			path = Squai;
+			sourceTree = "<group>";
+		};
+		2F35CE4E1C8B0F01FB59B637 /* Pet */ = {
+			isa = PBXGroup;
+			children = (
+				067E64B518761237097852BE /* PetController.swift */,
+				85E5E38477B6BA50573FB755 /* PetPanel.swift */,
+				9130D86962D1221C2DA6D8A3 /* PetSpriteView.swift */,
+			);
+			path = Pet;
+			sourceTree = "<group>";
+		};
+		321EEAAC0D56C58191E88A9C /* Packages */ = {
+			isa = PBXGroup;
+			children = (
+				A55BE6F7284385D6CE7DCD58 /* SquaiCore */,
+			);
+			path = Packages;
+			sourceTree = "<group>";
+		};
+		37599517957DD18FE9A93BC1 = {
+			isa = PBXGroup;
+			children = (
+				DB5A446A124073646DF0F2F0 /* App */,
+				321EEAAC0D56C58191E88A9C /* Packages */,
+				B43F6FDF8497AABB72C8943A /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		43363777EB7F75BABEA2F3E3 /* Settings */ = {
+			isa = PBXGroup;
+			children = (
+				49DCA44985F35F01F6DF20E8 /* SettingsView.swift */,
+				42A4F0040250550C736D26B1 /* SettingsWindowController.swift */,
+			);
+			path = Settings;
+			sourceTree = "<group>";
+		};
+		83F50C47992118A8447A4A4E /* Backends */ = {
+			isa = PBXGroup;
+			children = (
+				F2DC984F0311C36F92A8860B /* AppleTranslationBackend.swift */,
+			);
+			path = Backends;
+			sourceTree = "<group>";
+		};
+		A2841CCF7A0698C282FEC72C /* Capture */ = {
+			isa = PBXGroup;
+			children = (
+				EF92DE0E38DBB3B95A760204 /* SelectionCapture.swift */,
+			);
+			path = Capture;
+			sourceTree = "<group>";
+		};
+		B43F6FDF8497AABB72C8943A /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				E7F73D932BB52666DD0FE67B /* Squai.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		DB5A446A124073646DF0F2F0 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				299AE6862DF1471C82C67F1E /* Squai */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		E86E41A37266DEB381792445 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				8DF76DBD1DB96118754B161E /* Pets */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		F54038D87DD1351C84B9F8AE /* Bubble */ = {
+			isa = PBXGroup;
+			children = (
+				654162E9595E49EF4A6EABDD /* BubbleController.swift */,
+				F9AAF00D6E4EC657AED4CFF5 /* BubbleView.swift */,
+			);
+			path = Bubble;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		8C81EE0099B50E918AD645A1 /* Squai */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 432E54AF77B226B0E65F6BFF /* Build configuration list for PBXNativeTarget "Squai" */;
+			buildPhases = (
+				CCEA5C1C746519033BE15F7A /* Sources */,
+				2BAFFA15822CEA3CA28694A8 /* Resources */,
+				318DBC1DF5B6D6C94F44B21A /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Squai;
+			packageProductDependencies = (
+				A23A428EAD901B8D5B2826B2 /* SquaiCore */,
+				E052446F4256FF60BB842473 /* KeyboardShortcuts */,
+			);
+			productName = Squai;
+			productReference = E7F73D932BB52666DD0FE67B /* Squai.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		4C50EBC83FE5536F5069DBAF /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 2600;
+				TargetAttributes = {
+					8C81EE0099B50E918AD645A1 = {
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = 0E22F22440645C7C3576C0C4 /* Build configuration list for PBXProject "Squai" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = 37599517957DD18FE9A93BC1;
+			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				2B9C792ABB1F790A909C53F7 /* XCRemoteSwiftPackageReference "KeyboardShortcuts" */,
+				EB56C12BB2F2E44C5968F9DB /* XCLocalSwiftPackageReference "Packages/SquaiCore" */,
+			);
+			preferredProjectObjectVersion = 77;
+			productRefGroup = B43F6FDF8497AABB72C8943A /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				8C81EE0099B50E918AD645A1 /* Squai */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		2BAFFA15822CEA3CA28694A8 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B0E68617CFBDBDC304563538 /* Pets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		CCEA5C1C746519033BE15F7A /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				BBCB17C3402B62C3A3A0A765 /* AppDelegate.swift in Sources */,
+				D635AD771F3C50B1835F87A2 /* AppleTranslationBackend.swift in Sources */,
+				F0E0CD7F4AB28860974B28C9 /* BubbleController.swift in Sources */,
+				598A4838E8555110AC35C2A1 /* BubbleView.swift in Sources */,
+				B26C6B998B5F0B1EBC1DB8D9 /* Hotkeys.swift in Sources */,
+				1A80492D2BB635E86EB9EF6A /* Keychain.swift in Sources */,
+				DA55195866999715DE834CEF /* PetController.swift in Sources */,
+				69031F74FFA6D463C50CCDF4 /* PetPanel.swift in Sources */,
+				63E3224E013CFC15CB96E2BD /* PetSpriteView.swift in Sources */,
+				0434707C56F11D7D9AB5863E /* Preferences.swift in Sources */,
+				3B77657DD48AC5123643C30C /* SelectionCapture.swift in Sources */,
+				1198B4FF795252432CB82202 /* SettingsView.swift in Sources */,
+				B3198E9AF304BA4A9510FAE0 /* SettingsWindowController.swift in Sources */,
+				9FB44A362E7D3AE708849A20 /* StatusItemController.swift in Sources */,
+				8CE878129506BA05B2947F3E /* main.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		2E6811D15EF3DCDFA555493F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = App/Squai/Squai.entitlements;
+				COMBINE_HIDPI_IMAGES = YES;
+				ENABLE_APP_SANDBOX = NO;
+				INFOPLIST_FILE = App/Squai/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.squai.app;
+				PRODUCT_NAME = squai;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		326CABE1F01E20E70D01C6EC /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = App/Squai/Squai.entitlements;
+				COMBINE_HIDPI_IMAGES = YES;
+				ENABLE_APP_SANDBOX = NO;
+				INFOPLIST_FILE = App/Squai/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.squai.app;
+				PRODUCT_NAME = squai;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		E405109C5433ECEE0D2D5699 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 26.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		FE6215DE99534687074C0C23 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 26.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		0E22F22440645C7C3576C0C4 /* Build configuration list for PBXProject "Squai" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				FE6215DE99534687074C0C23 /* Debug */,
+				E405109C5433ECEE0D2D5699 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		432E54AF77B226B0E65F6BFF /* Build configuration list for PBXNativeTarget "Squai" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				326CABE1F01E20E70D01C6EC /* Debug */,
+				2E6811D15EF3DCDFA555493F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		EB56C12BB2F2E44C5968F9DB /* XCLocalSwiftPackageReference "Packages/SquaiCore" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = Packages/SquaiCore;
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		2B9C792ABB1F790A909C53F7 /* XCRemoteSwiftPackageReference "KeyboardShortcuts" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/sindresorhus/KeyboardShortcuts";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.0.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		A23A428EAD901B8D5B2826B2 /* SquaiCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = SquaiCore;
+		};
+		E052446F4256FF60BB842473 /* KeyboardShortcuts */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 2B9C792ABB1F790A909C53F7 /* XCRemoteSwiftPackageReference "KeyboardShortcuts" */;
+			productName = KeyboardShortcuts;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = 4C50EBC83FE5536F5069DBAF /* Project object */;
+}
