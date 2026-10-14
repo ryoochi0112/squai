@@ -1,0 +1,6 @@
+{
+  "id": "squai-default",
+  "displayName": "Squai",
+  "description": "Placeholder blob. Replace spritesheet.png with real pixel art (1536x1872, 8x9 cells of 192x208).",
+  "spritesheetPath": "spritesheet.png"
+}
