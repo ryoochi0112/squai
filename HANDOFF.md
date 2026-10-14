@@ -1,69 +1,74 @@
-# HANDOFF — squai (2026-10-14, session 2)
+# HANDOFF — squai v2 (2026-10-14)
 
-## Verified state
+## State
 
-`main` = `5e370b8` (PR ryoochi0112/squai#2 merged). This branch `fix/error-diagnostics` is rebased
-onto it (`ad00544` capture rewrite + this note). Tree clean except the untracked root
-`RESEARCH-desktop-pet-translator.md` (byte-identical duplicate of the docs/research file).
+Branch `feat/v2-squad`. Tasks T1 to T9 are done and committed. T10 (these docs) is the last task.
+`make verify` is the gate (SquaiCore tests plus the Debug build).
 
-DONE (verified this session):
-- **v2 spec written and critic-reviewed**: `docs/specs/2026-10-14-squai-v2-squad-spec.md`.
-  15 acceptance criteria, all pass the fresh-context critic (3 passes). §4b records Git process.
-  Decisions are in its §5 table (users = non-devs; 1 folder = 1 member with `skill.json`;
-  Claude/ChatGPT via `claude -p` / `codex exec`, API key fallback; click-to-run + optional
-  hotkey; Copy/Replace; Codex look import; OpenAI Images generation; empty first run; Apple
-  Translation dropped).
-- **GitHub setup**: `.github/workflows/verify.yml` (`make verify` on `macos-26`, job `verify`)
-  ran green on PR #2 and on `main`. Branch protection on `main`: PR required (0 approvals),
-  `verify` check required + strict, admins enforced, no force push / delete.
-- **Makefile fix**: `make build` now `set -o pipefail` so a failed xcodebuild exits non-zero
-  (macOS make 3.81 ignores `.SHELLFLAGS`; verified bogus scheme → exit 2).
-- **rstaff profile** created: `/Users/ryoochi/rstaff/profiles/squai.md`.
-- `make verify` green on this tree: 20 SquaiCore tests, Debug build.
+Built in v2: member folders (`pet.json`, sprite sheet, `skill.json`), the Squad editor in Settings,
+click and hotkey runs through the `claude` and `codex` CLIs, the Claude API key fallback,
+Copy and Replace, multi-pet overlay, Codex look import, and look generation with `hatch-pet`.
+The v1 translator and the Apple Translation backend are removed.
 
-未検証 (unverified):
-- `ad00544` capture rewrite (modifier-release wait, `.cgSessionEventTap`, Edit ▸ Copy menu
-  fallback, per-stage diagnostics). Compiles; never exercised against Safari.
-- v1 AC1–AC8, AC10 remain manual and unticked.
+Not yet verified: every manual AC below. No manual AC has been run in the Debug app.
+The capture rewrite `ad00544` has also never run against Safari. AC4 depends on it.
 
-## Open decisions
+## Manual AC checklist (ACs 1 to 13 and 15)
 
-1. ~~v2 initiative grill~~ → done; spec merged.
-2. ~~PR for `fix/error-diagnostics`~~ → **yes**: open it without waiting for the manual Safari
-   retry. It is strictly better diagnostics, CI gates it, and v2 AC4 testing re-exercises capture.
-3. ~~Delete root `RESEARCH-desktop-pet-translator.md`~~ → **done** (byte-identical to
-   `docs/research/2026-10-14-desktop-pet-translator.md`, verified with `cmp`).
-4. ~~v2 spec §5 open questions~~ → resolved in `/rstaff-engineer:design` (spec §5 rows 12–17;
-   design doc `docs/specs/2026-10-14-squai-v2-design.md`).
+Run these in the Debug app (`make run`). After every rebuild, remove and re-add squai in
+System Settings → Privacy & Security → Accessibility. Tick each AC in
+`docs/specs/2026-10-14-squai-v2-squad-spec.md` when it passes. All ACs are not run yet.
+
+Start with AC4 in Safari, to confirm the capture rewrite before you judge anything else.
+
+| AC | How to test | Run? |
+|---|---|---|
+| 1 | Delete `~/Library/Application Support/squai/`. Launch. No pet appears, and Settings opens on the Create member form. | No |
+| 2 | Fill the form (name, prompt, backend, look, hotkey, visible) and Save. The pet appears within 1 s. Check `pets/<id>/` has `pet.json`, the sheet, and `skill.json` with the form values. | No |
+| 3 | Prompt "Reply with exactly the word PING"; run it, bubble is `PING`. Edit `skill.json` to PONG, choose Reload. The GUI shows PONG and the next bubble is `PONG`. Delete the folder and Reload; pet and row disappear. | No |
+| 4 | Select text in Safari, VS Code, and Slack; left-click a pet. The bubble shows within 10 s (Claude) or 20 s (ChatGPT). The source app keeps focus and selection. | No |
+| 5 | Set a hotkey on a member, also on a hidden one; it runs as in AC4. Saving a second member with the same hotkey shows an inline error. | No |
+| 6 | Prompt "Echo the input exactly". Right-click first: "No result yet". Select `alpha`, left-click: `alpha`. Select `beta`, right-click: still `alpha`. Left-click: `beta`. | No |
+| 7 | Confirm no Keychain item `com.squai.anthropic`. Put a shim `claude` first on `PATH` that logs args and stdin to `/tmp/squai-cli.log` and prints `SHIM-OK`. Run a Claude member: body `SHIM-OK`, log has `-p`. Repeat with a shim `codex` (log has `exec`). Rename the shim away; the Backends status flips to "CLI not found". | No |
+| 8 | No CLI plus a key in Keychain: the Claude run works. No CLI and no key: "Claude is not set up" with a button to Settings. ChatGPT without `codex`: "ChatGPT is not set up". Run `grep -r` over Application Support and Preferences: no key found. | No |
+| 9 | In TextEdit, press Replace: text is replaced and the clipboard is restored. Run again, click another app, right-click the pet to re-show the result, press Replace: "Copied — could not replace" and the clipboard holds the body. | No |
+| 10 | Show three members. Drag each, quit, relaunch: positions are kept. Turn `visible` off for one: only that pet disappears. | No |
+| 11 | Put a look-only folder in `~/.codex/pets/`. It appears in the look picker but not on the desktop. Choose it: it is copied into squai's folder, `skill.json` is written there, and `~/.codex/pets/` gains no file. | No |
+| 12 | Zip a member folder, delete the folder, unzip it into `pets/`. The member returns with the same fields and no GUI step. | No |
+| 13 | With `codex` logged in, `hatch-pet` installed, and Pillow, press Generate look. The form shows "Generating…" and Cancel. The result is in `looks/<id>/`; `sips -g pixelWidth -g pixelHeight` reports 1536×1872. Preview rows lists all 9 row names. Without `codex` or the skill, inline text names the missing piece with no dialog. `~/.codex/pets/` gains no file. | No |
+| 15 | Member prompt "Translate between Japanese and English; detect the direction; output only the translation". `こんにちは` gives English; `hello` gives Japanese. | No |
+
+AC14 (unit tests) is covered by `make verify`.
+
+## Open items
+
+- v2.1: ChatGPT API key fallback (v2 ChatGPT uses `codex exec` only).
+- v2.1: per-member model (v2 fixes `--model haiku` for Claude).
+- Backlog: symlink TOCTOU hardening for member folders is out of the threat model.
+- Known gap: Replace into a read-only field fails silently. squai cannot detect it.
+- Risk: `hatch-pet` is a Codex skill that squai does not control. squai validates its output.
 
 ## Environment
 
 ```bash
 cd /Users/ryoochi/squai
 make verify          # swift test (Packages/SquaiCore) + xcodebuild Debug, exit 0 expected
-make run             # or open Squai.xcodeproj and run scheme Squai
+make run             # build and open the app
 ```
 
-- Toolchain: Xcode 26.6, Swift 6.3, macOS 26.5.1, xcodegen 2.46. `make gen` after editing `project.yml`.
-- No signing identity, no Apple ID: re-add squai in System Settings → Privacy & Security →
-  Accessibility after every rebuild.
-- Claude key, if used, lives in Keychain service `com.squai.anthropic`.
-- rstaff completion gate blocks session stop until a plain `make verify` exits 0 on the tree.
+- Toolchain: Xcode 26.6, Swift 6.3, macOS 26.5.1, xcodegen 2.46. Run `make gen` after you edit `project.yml`.
+- Debug builds are ad-hoc signed, so the Accessibility grant dies on every rebuild.
+- The Claude API key lives only in Keychain, service `com.squai.anthropic`.
+- CI: `.github/workflows/verify.yml` runs `make verify` on `macos-26` (job `verify`). Merge is a human action.
 
 ## Next actions
 
-1. Open the PR for `fix/error-diagnostics` (capture rewrite + design docs).
-2. After merge: `/rstaff-engineer:build` (or `/rstaff-engineer:dispatch`) on the ledger
-   `/Users/ryoochi/rstaff/var/specs/squai/squai-v2-squad.tasks.md`, branch `feat/v2-squad`.
-3. First manual pass: confirm capture in Safari (AC4) before judging UI tasks.
+1. Review and merge `feat/v2-squad` (the human opens and merges the PR).
+2. Run the manual AC checklist above, starting with AC4.
 
 ## Pointers
 
 - v2 spec: `docs/specs/2026-10-14-squai-v2-squad-spec.md`
-- v2 design: `docs/specs/2026-10-14-squai-v2-design.md`; ledger: `/Users/ryoochi/rstaff/var/specs/squai/squai-v2-squad.tasks.md`
-- v1 spec: `docs/specs/2026-10-14-squai-v1-spec.md`
-- rstaff profile: `/Users/ryoochi/rstaff/profiles/squai.md`
-- CI: `.github/workflows/verify.yml`; PR #2: https://github.com/ryoochi0112/squai/pull/2
-- Capture: `App/Squai/Capture/SelectionCapture.swift`; error text: `AppDelegate.describe(_:)`
-- Skills protocol (to be extended in v2): `Packages/SquaiCore/Sources/SquaiCore/Skills.swift`
+- v2 design: `docs/specs/2026-10-14-squai-v2-design.md`
+- Capture: `App/Squai/Capture/SelectionCapture.swift`
 - Repo: https://github.com/ryoochi0112/squai (public)
