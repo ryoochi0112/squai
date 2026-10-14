@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		0434707C56F11D7D9AB5863E /* Preferences.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9CBE189323AAAB828D227AA5 /* Preferences.swift */; };
+		0B6FF57800379E3B395385EE /* ReplaceService.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2F60DC1D29AD20C1BBBC26E /* ReplaceService.swift */; };
 		1198B4FF795252432CB82202 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49DCA44985F35F01F6DF20E8 /* SettingsView.swift */; };
 		1A80492D2BB635E86EB9EF6A /* Keychain.swift in Sources */ = {isa = PBXBuildFile; fileRef = 624037BF6D7668B1E3694EA9 /* Keychain.swift */; };
 		264FCB9D262A145DF16EAF89 /* SquaiCore in Frameworks */ = {isa = PBXBuildFile; productRef = A23A428EAD901B8D5B2826B2 /* SquaiCore */; };
@@ -44,6 +45,7 @@
 		A55BE6F7284385D6CE7DCD58 /* SquaiCore */ = {isa = PBXFileReference; lastKnownFileType = folder; name = SquaiCore; path = Packages/SquaiCore; sourceTree = SOURCE_ROOT; };
 		A59E6DDB466F255B9AD074E8 /* StatusItemController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusItemController.swift; sourceTree = "<group>"; };
 		D09BC99758653CC3E34D5855 /* SquadController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SquadController.swift; sourceTree = "<group>"; };
+		D2F60DC1D29AD20C1BBBC26E /* ReplaceService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReplaceService.swift; sourceTree = "<group>"; };
 		E7F73D932BB52666DD0FE67B /* Squai.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Squai.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		EF92DE0E38DBB3B95A760204 /* SelectionCapture.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectionCapture.swift; sourceTree = "<group>"; };
 		F9AAF00D6E4EC657AED4CFF5 /* BubbleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BubbleView.swift; sourceTree = "<group>"; };
@@ -131,6 +133,7 @@
 		A2841CCF7A0698C282FEC72C /* Capture */ = {
 			isa = PBXGroup;
 			children = (
+				D2F60DC1D29AD20C1BBBC26E /* ReplaceService.swift */,
 				EF92DE0E38DBB3B95A760204 /* SelectionCapture.swift */,
 			);
 			path = Capture;
@@ -255,6 +258,7 @@
 				69031F74FFA6D463C50CCDF4 /* PetPanel.swift in Sources */,
 				63E3224E013CFC15CB96E2BD /* PetSpriteView.swift in Sources */,
 				0434707C56F11D7D9AB5863E /* Preferences.swift in Sources */,
+				0B6FF57800379E3B395385EE /* ReplaceService.swift in Sources */,
 				3B77657DD48AC5123643C30C /* SelectionCapture.swift in Sources */,
 				1198B4FF795252432CB82202 /* SettingsView.swift in Sources */,
 				B3198E9AF304BA4A9510FAE0 /* SettingsWindowController.swift in Sources */,

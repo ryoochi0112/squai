@@ -2,6 +2,13 @@ import AppKit
 import SquaiCore
 
 /// Everything resolved once at launch: where the CLIs live and the PATH they need.
+/// A member's latest result and the app its selection came from (Replace pastes only there).
+private struct MemberResult {
+    let id = UUID()
+    var body: String
+    var context: CaptureContext
+}
+
 private struct CLICache: Sendable {
     var executables: [Backend: URL]
     var loginShellPath: String?
@@ -17,9 +24,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var routerTask: Task<BackendRouter, Never>!
     /// Per-member state keyed by id. All of it is pruned to the current members on reload.
     private var bubbles: [String: BubbleController] = [:]
-    private var lastResult: [String: String] = [:]
+    private var lastResult: [String: MemberResult] = [:]
     /// Identity of the in-flight run per member; reload drops it when the member vanishes or changes.
     private var runs: [String: UUID] = [:]
+    /// The system pasteboard is shared by capture (⌘C + restore) and Replace (⌘V + restore).
+    /// They must not interleave, or one restores the other's borrowed contents over the user's.
+    private var capturing = 0
+    private var replacing = false
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         routerTask = Task { await Self.makeRouter() }
@@ -111,6 +122,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             return NSRect(origin: PetController.defaultOrigin(), size: PetController.displaySize)
         })
         bubble.onOpenSettings = { [weak self] in self?.showSettings() }
+        bubble.onReplace = { [weak self] body in self?.replace(memberID: id, body: body) }
         bubbles[id] = bubble
         return bubble
     }
@@ -120,7 +132,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private func showLast(memberID id: String) {
         guard squad.members.contains(where: { $0.id == id }) else { return }
         if let last = lastResult[id] {
-            bubble(for: id).show(.result(last))
+            bubble(for: id).show(.result(last.body))
         } else {
             bubble(for: id).show(.info("No result yet"))
         }
@@ -129,6 +141,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private func run(memberID id: String) {
         guard let member = squad.members.first(where: { $0.id == id }) else { return }
         guard runs[id] == nil else { return }
+        guard !replacing else { return }
         guard SelectionCapture.isTrusted else {
             NSLog("squai: Accessibility not granted for this build")
             squad.pet(for: id)?.set(state: .waiting)
@@ -142,14 +155,22 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         Task { @MainActor in
             defer { if runs[id] == token { runs[id] = nil } }
             do {
-                let selection = try await SelectionCapture.selectedText()
+                capturing += 1
+                let captured: (text: String, context: CaptureContext)
+                do {
+                    captured = try await SelectionCapture.selectedText()
+                    capturing -= 1
+                } catch {
+                    capturing -= 1
+                    throw error
+                }
                 guard runs[id] == token else { return }
-                let prompt = PromptAssembler.assemble(prompt: member.skill.prompt, selection: selection)
+                let prompt = PromptAssembler.assemble(prompt: member.skill.prompt, selection: captured.text)
                 let router = await routerTask.value
                 guard runs[id] == token else { return }
                 let body = try await router.run(backend: member.skill.backend, prompt: prompt)
                 guard runs[id] == token else { return }
-                lastResult[id] = body
+                lastResult[id] = MemberResult(body: body, context: captured.context)
                 squad.pet(for: id)?.set(state: .review)
                 bubble(for: id).show(.result(body))
             } catch {
@@ -162,6 +183,31 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 NSLog("squai: member %@ run failed: %@", id, String(describing: error))
                 squad.pet(for: id)?.set(state: .failed)
                 bubble(for: id).show(.error(Self.describe(error)))
+            }
+        }
+    }
+
+    /// Pastes the member's latest result into the app its selection came from.
+    /// Success hides the bubble; failure leaves the body on the pasteboard and says so.
+    private func replace(memberID id: String, body: String) {
+        guard !replacing, capturing == 0 else { return }
+        guard squad.members.contains(where: { $0.id == id }), let last = lastResult[id] else { return }
+        guard last.body == body else {
+            // The bubble shows something other than the stored result: never paste it blind.
+            ReplaceService.copy(body)
+            bubble(for: id).show(.info("Copied — could not replace"))
+            return
+        }
+        replacing = true
+        Task { @MainActor in
+            let ok = await ReplaceService.replace(body, into: last.context)
+            replacing = false
+            // The member may have been removed, or a newer result shown, while pasting.
+            guard lastResult[id]?.id == last.id, let bubble = bubbles[id] else { return }
+            if ok {
+                bubble.hide()
+            } else {
+                bubble.show(.info("Copied — could not replace"))
             }
         }
     }

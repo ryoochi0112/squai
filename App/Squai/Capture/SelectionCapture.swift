@@ -1,6 +1,43 @@
 import AppKit
 import ApplicationServices
 
+/// The app the selection came from, recorded at capture start so Replace can refuse to paste
+/// anywhere else.
+struct CaptureContext: Equatable {
+    var pid: pid_t
+    var bundleID: String?
+
+    /// The frontmost app right now; pid -1 (never a real app) when there is none.
+    @MainActor static func frontmost() -> CaptureContext {
+        guard let app = NSWorkspace.shared.frontmostApplication else { return CaptureContext(pid: -1, bundleID: nil) }
+        return CaptureContext(pid: app.processIdentifier, bundleID: app.bundleIdentifier)
+    }
+}
+
+/// A deep copy of every type of every pasteboard item, so the user's clipboard can be put back
+/// exactly after squai borrows the pasteboard (capture's ⌘C, Replace's ⌘V).
+struct PasteboardSnapshot {
+    private let items: [[(NSPasteboard.PasteboardType, Data)]]
+
+    static func take(from pb: NSPasteboard = .general) -> PasteboardSnapshot {
+        let items = pb.pasteboardItems?.map { item in
+            item.types.compactMap { t in item.data(forType: t).map { (t, $0) } }
+        } ?? []
+        return PasteboardSnapshot(items: items)
+    }
+
+    /// Replaces the pasteboard with the snapshot. An empty snapshot leaves the pasteboard empty.
+    func restore(to pb: NSPasteboard = .general) {
+        pb.clearContents()
+        let objects = items.map { pairs -> NSPasteboardItem in
+            let item = NSPasteboardItem()
+            for (t, d) in pairs { item.setData(d, forType: t) }
+            return item
+        }
+        if !objects.isEmpty { pb.writeObjects(objects) }
+    }
+}
+
 /// Easydict strategy: AX selected text → simulated ⌘C → frontmost app's Edit ▸ Copy menu item.
 /// Every stage records what it saw so a failure can be diagnosed from the bubble.
 enum SelectionCapture {
@@ -13,22 +50,24 @@ enum SelectionCapture {
         _ = AXIsProcessTrustedWithOptions(opts)
     }
 
-    static func selectedText() async throws -> String {
+    @MainActor
+    static func selectedText() async throws -> (text: String, context: CaptureContext) {
+        let context = CaptureContext.frontmost()
         var trace: [String] = []
 
         let ax = axSelectedText()
         trace.append("ax=\(ax.detail)")
-        if let t = ax.text, !t.isEmpty { return t }
+        if let t = ax.text, !t.isEmpty { return (t, context) }
 
         await waitForModifierRelease()
 
         let viaKey = await copyViaPasteboard(trace: &trace) { postCommandC() }
-        if let viaKey, !viaKey.isEmpty { return viaKey }
+        if let viaKey, !viaKey.isEmpty { return (viaKey, context) }
 
         var menuTrace: [String] = []
         let viaMenu = await copyViaPasteboard(trace: &trace) { pressEditCopyMenuItem(trace: &menuTrace) }
         trace.append(contentsOf: menuTrace)
-        if let viaMenu, !viaMenu.isEmpty { return viaMenu }
+        if let viaMenu, !viaMenu.isEmpty { return (viaMenu, context) }
 
         let detail = trace.joined(separator: " | ")
         NSLog("squai: capture failed: %@", detail)
@@ -57,11 +96,7 @@ enum SelectionCapture {
 
     private static func copyViaPasteboard(trace: inout [String], trigger: () -> Void) async -> String? {
         let pb = NSPasteboard.general
-        let saved = pb.pasteboardItems?.compactMap { item -> NSPasteboardItem? in
-            let copy = NSPasteboardItem()
-            for t in item.types { if let d = item.data(forType: t) { copy.setData(d, forType: t) } }
-            return copy
-        } ?? []
+        let saved = PasteboardSnapshot.take(from: pb)
         let marker = pb.clearContents()
 
         trigger()
@@ -73,14 +108,13 @@ enum SelectionCapture {
         let text = pb.string(forType: .string)
         trace.append("pb changed=\(changed) types=\(pb.types?.map(\.rawValue).joined(separator: ",") ?? "-") len=\(text?.count ?? -1)")
 
-        pb.clearContents()
-        if !saved.isEmpty { pb.writeObjects(saved) }
+        saved.restore(to: pb)
         return text
     }
 
     /// The hotkey fires on key-up of the letter while ⌥⌘ may still be held; wait so the
-    /// synthetic ⌘C is not merged with physical modifiers into ⌥⌘C.
-    private static func waitForModifierRelease() async {
+    /// synthetic ⌘C (or Replace's ⌘V) is not merged with physical modifiers into ⌥⌘C.
+    static func waitForModifierRelease() async {
         for _ in 0..<20 { // up to ~1 s
             let held = NSEvent.modifierFlags.intersection([.option, .shift, .control])
             if held.isEmpty { return }

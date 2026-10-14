@@ -13,6 +13,7 @@ final class BubbleController {
     private var clickMonitor: Any?
     var autoHide: TimeInterval = 12
 
+    /// Receives the shown body; the owner pastes it and then hides or re-renders this bubble.
     var onReplace: (String) -> Void = { _ in }
     var onOpenSettings: () -> Void = {}
 
@@ -34,8 +35,7 @@ final class BubbleController {
         host.rootView = AnyView(BubbleView(
             content: content,
             onCopy: { [weak self] in
-                NSPasteboard.general.clearContents()
-                NSPasteboard.general.setString($0, forType: .string)
+                ReplaceService.copy($0)
                 self?.hide()
             },
             onReplace: { [weak self] in self?.onReplace($0) },

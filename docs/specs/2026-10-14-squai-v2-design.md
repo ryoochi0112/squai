@@ -106,6 +106,12 @@ click / hotkey(member)
   (2) snapshot pasteboard items (same code as capture); (3) write body; (4) wait for modifier
   release; post ⌘V (key 9) via `.cgSessionEventTap`; (5) after 400 ms restore the snapshot.
   **Failure path:** leave the body on the pasteboard; bubble becomes "Copied — could not replace".
+- **Replace safety refinements (added in T7):** (a) the snapshot is restored only if the
+  pasteboard `changeCount` is unchanged since the body was written, so a copy the user makes in the
+  400 ms window wins over the older snapshot; (b) squai's own pid is never a Replace target (failure
+  path); (c) capture and Replace never overlap — a run is ignored while a Replace is in flight and
+  Replace is ignored during a capture — so one operation's restore cannot overwrite the other's.
+  The pid guard is re-checked after the modifier-release wait.
 - **Why ⌘V over AX `kAXSelectedTextAttribute` write:** the AX write works in Cocoa text views but
   is ignored or reports success without effect in Chromium/Electron (VS Code, Slack) and many web
   fields — a silent failure AC9 forbids. ⌘V follows the app's own paste path (undo works) and the
