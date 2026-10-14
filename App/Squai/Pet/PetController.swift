@@ -14,21 +14,43 @@ final class PetController {
     private var timer: Timer?
     private var revertWork: DispatchWorkItem?
     var onClick: (() -> Void)?
+    var onRightClick: (() -> Void)?
 
-    init() {
-        let origin = Preferences.petOrigin ?? Self.defaultOrigin()
+    let member: SquadMember
+
+    init(member: SquadMember, origin: NSPoint) {
+        self.member = member
         panel = PetPanel(contentRect: NSRect(origin: origin, size: Self.displaySize))
         view = PetSpriteView(frame: NSRect(origin: .zero, size: Self.displaySize))
         panel.contentView = view
         view.onClick = { [weak self] in self?.onClick?() }
-        view.onDragEnd = { Preferences.petOrigin = $0 }
+        view.onRightClick = { [weak self] in self?.onRightClick?() }
+        view.onDragEnd = { Preferences.setOrigin($0, for: member.id) }
 
-        let pets = PetLibrary(searchPaths: AppDelegate.petSearchPaths).scan()
-        let chosen = pets.first { $0.manifest.id == Preferences.selectedPetID } ?? pets.first
-        if let chosen { load(pet: chosen) }
+        let url = member.folder.appendingPathComponent(member.pet.spritesheetPath)
+        if let loaded = Self.loadSheet(at: url) {
+            sheet = loaded
+        } else {
+            NSLog("squai: member %@ sheet at %@ is missing or invalid; using the default look", member.id, url.path)
+            if let fallback = Self.bundledDefault(), let loaded = Self.loadSheet(at: fallback.spritesheetURL) {
+                sheet = loaded
+            }
+        }
+        render()
     }
 
-    private static func defaultOrigin() -> NSPoint {
+    private static func loadSheet(at url: URL) -> SpriteSheet? {
+        guard let src = CGImageSourceCreateWithURL(url as CFURL, nil),
+              let atlas = CGImageSourceCreateImageAtIndex(src, 0, nil) else { return nil }
+        return try? SpriteSheet(atlas: atlas)
+    }
+
+    private static func bundledDefault() -> InstalledPet? {
+        guard let dir = Bundle.main.resourceURL?.appendingPathComponent("Pets", isDirectory: true) else { return nil }
+        return PetLibrary(searchPaths: [dir]).scan().first
+    }
+
+    static func defaultOrigin() -> NSPoint {
         let screen = NSScreen.main?.visibleFrame ?? NSRect(x: 0, y: 0, width: 1280, height: 800)
         return NSPoint(x: screen.maxX - displaySize.width - 24, y: screen.minY + 24)
     }
@@ -44,6 +66,13 @@ final class PetController {
         Preferences.selectedPetID = pet.manifest.id
         frameIndex = 0
         render()
+    }
+
+    func close() {
+        timer?.invalidate()
+        timer = nil
+        revertWork?.cancel()
+        panel.orderOut(nil)
     }
 
     func show() {

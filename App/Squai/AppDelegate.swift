@@ -5,8 +5,9 @@ import KeyboardShortcuts
 @MainActor
 final class AppDelegate: NSObject, NSApplicationDelegate {
     private var statusItem: StatusItemController!
-    private var pet: PetController!
-    private var bubble: BubbleController!
+    private var squad: SquadController!
+    private var bubbleStore: BubbleController?
+    private var bubbleAnchor: PetController?
     private var settings: SettingsWindowController?
     let registry = SkillRegistry()
 
@@ -16,20 +17,29 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             premium: ClaudeBackend(apiKeyProvider: { Keychain.read(service: Keychain.anthropicService) })
         ))
 
-        pet = PetController()
-        bubble = BubbleController(anchor: pet)
+        let support = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
+            .appendingPathComponent("squai", isDirectory: true)
+        let memberRoot = support.appendingPathComponent("pets", isDirectory: true)
+        try? FileManager.default.createDirectory(at: memberRoot, withIntermediateDirectories: true)
+        var lookRoots: [(URL, Look.Source)] = [(support.appendingPathComponent("looks", isDirectory: true), .squai)]
+        if let bundled = Bundle.main.resourceURL?.appendingPathComponent("Pets", isDirectory: true) {
+            lookRoots.append((bundled, .bundled))
+        }
+        lookRoots.append((FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent(".codex/pets", isDirectory: true), .codex))
+        squad = SquadController(library: SquadLibrary(memberRoot: memberRoot, lookRoots: lookRoots))
+        squad.onLeftClick = { [weak self] _ in self?.bubble?.showLast() }
         statusItem = StatusItemController(
             onTranslate: { [weak self] in self?.runTranslate(premium: false) },
             onSettings: { [weak self] in self?.showSettings() },
-            onPickPet: { [weak self] in self?.pet.load(pet: $0) },
+            onReloadSquad: { [weak self] in self?.squad.reload() },
+            onPickPet: { [weak self] in self?.pet?.load(pet: $0) },
             pets: { PetLibrary(searchPaths: Self.petSearchPaths).scan() }
         )
-        pet.onClick = { [weak self] in self?.bubble.showLast() }
 
         KeyboardShortcuts.onKeyUp(for: .translateSelection) { [weak self] in self?.runTranslate(premium: false) }
         KeyboardShortcuts.onKeyUp(for: .translateSelectionPremium) { [weak self] in self?.runTranslate(premium: true) }
 
-        pet.show()
+        squad.reload()
         SelectionCapture.requestAccessibilityIfNeeded()
     }
 
@@ -41,7 +51,26 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         return paths
     }
 
+    /// v1 translate anchors to the first visible member's pet (T6 removes v1 translate).
+    private var pet: PetController? {
+        guard let first = squad.members.first(where: { $0.skill.visible }) else { return nil }
+        return squad.pet(for: first.id)
+    }
+
+    private var bubble: BubbleController? {
+        guard let pet else { return nil }
+        if bubbleAnchor !== pet || bubbleStore == nil {
+            bubbleStore = BubbleController(anchor: pet)
+            bubbleAnchor = pet
+        }
+        return bubbleStore
+    }
+
     func runTranslate(premium: Bool) {
+        guard let pet, let bubble else {
+            NSLog("squai: translate hotkey ignored: no squad members")
+            return
+        }
         guard let skill = registry.skill(id: "translate.ja-en") else { return }
         guard SelectionCapture.isTrusted else {
             NSLog("squai: Accessibility not granted for this build")
@@ -87,6 +116,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     func rerunPremium(source: String) {
+        guard let pet, let bubble else { return }
         guard let skill = registry.skill(id: "translate.ja-en") else { return }
         Task { @MainActor in
             pet.set(state: .running)

@@ -16,6 +16,7 @@
 		63E3224E013CFC15CB96E2BD /* PetSpriteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9130D86962D1221C2DA6D8A3 /* PetSpriteView.swift */; };
 		69031F74FFA6D463C50CCDF4 /* PetPanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85E5E38477B6BA50573FB755 /* PetPanel.swift */; };
 		8CE878129506BA05B2947F3E /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = FD5FA0690B70FA19D58B41A2 /* main.swift */; };
+		8DA5C49069CE5832628166D0 /* SquadController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D09BC99758653CC3E34D5855 /* SquadController.swift */; };
 		9FB44A362E7D3AE708849A20 /* StatusItemController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A59E6DDB466F255B9AD074E8 /* StatusItemController.swift */; };
 		B0E68617CFBDBDC304563538 /* Pets in Resources */ = {isa = PBXBuildFile; fileRef = 8DF76DBD1DB96118754B161E /* Pets */; };
 		B26C6B998B5F0B1EBC1DB8D9 /* Hotkeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EE63116F23A472F0FB705C6 /* Hotkeys.swift */; };
@@ -43,6 +44,7 @@
 		9EE63116F23A472F0FB705C6 /* Hotkeys.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Hotkeys.swift; sourceTree = "<group>"; };
 		A55BE6F7284385D6CE7DCD58 /* SquaiCore */ = {isa = PBXFileReference; lastKnownFileType = folder; name = SquaiCore; path = Packages/SquaiCore; sourceTree = SOURCE_ROOT; };
 		A59E6DDB466F255B9AD074E8 /* StatusItemController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusItemController.swift; sourceTree = "<group>"; };
+		D09BC99758653CC3E34D5855 /* SquadController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SquadController.swift; sourceTree = "<group>"; };
 		E7F73D932BB52666DD0FE67B /* Squai.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Squai.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		EF92DE0E38DBB3B95A760204 /* SelectionCapture.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectionCapture.swift; sourceTree = "<group>"; };
 		F2DC984F0311C36F92A8860B /* AppleTranslationBackend.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppleTranslationBackend.swift; sourceTree = "<group>"; };
@@ -63,6 +65,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		14AB32C6AD60826D75A1DA78 /* Squad */ = {
+			isa = PBXGroup;
+			children = (
+				D09BC99758653CC3E34D5855 /* SquadController.swift */,
+			);
+			path = Squad;
+			sourceTree = "<group>";
+		};
 		299AE6862DF1471C82C67F1E /* Squai */ = {
 			isa = PBXGroup;
 			children = (
@@ -80,6 +90,7 @@
 				2F35CE4E1C8B0F01FB59B637 /* Pet */,
 				E86E41A37266DEB381792445 /* Resources */,
 				43363777EB7F75BABEA2F3E3 /* Settings */,
+				14AB32C6AD60826D75A1DA78 /* Squad */,
 			);
 			path = Squai;
 			sourceTree = "<group>";
@@ -259,6 +270,7 @@
 				3B77657DD48AC5123643C30C /* SelectionCapture.swift in Sources */,
 				1198B4FF795252432CB82202 /* SettingsView.swift in Sources */,
 				B3198E9AF304BA4A9510FAE0 /* SettingsWindowController.swift in Sources */,
+				8DA5C49069CE5832628166D0 /* SquadController.swift in Sources */,
 				9FB44A362E7D3AE708849A20 /* StatusItemController.swift in Sources */,
 				8CE878129506BA05B2947F3E /* main.swift in Sources */,
 			);

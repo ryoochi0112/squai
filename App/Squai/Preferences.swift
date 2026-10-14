@@ -6,12 +6,12 @@ enum Preferences {
         get { d.string(forKey: "selectedPetID") }
         set { d.set(newValue, forKey: "selectedPetID") }
     }
-    static var petOrigin: CGPoint? {
-        get {
-            guard let a = d.array(forKey: "petOrigin") as? [Double], a.count == 2 else { return nil }
-            return CGPoint(x: a[0], y: a[1])
-        }
-        set { d.set(newValue.map { [$0.x, $0.y] }, forKey: "petOrigin") }
+    static func origin(for id: String) -> CGPoint? {
+        guard let a = d.array(forKey: "petOrigin.\(id)") as? [Double], a.count == 2 else { return nil }
+        return CGPoint(x: a[0], y: a[1])
+    }
+    static func setOrigin(_ origin: CGPoint, for id: String) {
+        d.set([origin.x, origin.y], forKey: "petOrigin.\(id)")
     }
     static var frameRate: Double {
         let v = d.double(forKey: "frameRate")
