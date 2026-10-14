@@ -28,14 +28,13 @@ DONE (verified this session):
 
 ## Open decisions
 
-1. ~~v2 initiative grill~~ → done; spec merged. Next step is `/rstaff-engineer:design`.
-2. Yes/no: open a PR for `fix/error-diagnostics` even if capture is still failing? It is
-   strictly better diagnostics than `main`. Recommended: yes, after one manual retry. Note
-   `main` now requires a PR + green `verify`, so direct push is impossible anyway.
-3. Yes/no: delete the untracked root `RESEARCH-desktop-pet-translator.md` duplicate.
-4. v2 spec §5 open questions need a human call before design: image-generation alternatives
-   to an OpenAI API key; CLI invocation model (cwd, timeout, 10 s budget); ChatGPT API
-   fallback model; default hotkey suggestion; Replace mechanism (AX write vs ⌘V).
+1. ~~v2 initiative grill~~ → done; spec merged.
+2. ~~PR for `fix/error-diagnostics`~~ → **yes**: open it without waiting for the manual Safari
+   retry. It is strictly better diagnostics, CI gates it, and v2 AC4 testing re-exercises capture.
+3. ~~Delete root `RESEARCH-desktop-pet-translator.md`~~ → **done** (byte-identical to
+   `docs/research/2026-10-14-desktop-pet-translator.md`, verified with `cmp`).
+4. ~~v2 spec §5 open questions~~ → resolved in `/rstaff-engineer:design` (spec §5 rows 12–17;
+   design doc `docs/specs/2026-10-14-squai-v2-design.md`).
 
 ## Environment
 
@@ -53,18 +52,15 @@ make run             # or open Squai.xcodeproj and run scheme Squai
 
 ## Next actions
 
-1. Fresh session: `/rstaff-engineer:design docs/specs/2026-10-14-squai-v2-squad-spec.md` →
-   PLAN + task ledger. Resolve open decision 4 items during design.
-2. In parallel or before: decide open decision 2. If yes: ⌘R → re-add Accessibility → select
-   text in Safari → ⌥⌘T → paste the bubble's `Diagnostics:` line; then `git push -u origin
-   fix/error-diagnostics` and open a PR (CI `verify` must pass).
-3. Decide open decision 3 (delete duplicate research file).
-4. v2 build will remove `AppleTranslationBackend`, `TranslateSkill`, and the ja/en-specific
-   hotkeys in `App/Squai/Hotkeys.swift`; v1 spec stays as history.
+1. Open the PR for `fix/error-diagnostics` (capture rewrite + design docs).
+2. After merge: `/rstaff-engineer:build` (or `/rstaff-engineer:dispatch`) on the ledger
+   `/Users/ryoochi/rstaff/var/specs/squai/squai-v2-squad.tasks.md`, branch `feat/v2-squad`.
+3. First manual pass: confirm capture in Safari (AC4) before judging UI tasks.
 
 ## Pointers
 
 - v2 spec: `docs/specs/2026-10-14-squai-v2-squad-spec.md`
+- v2 design: `docs/specs/2026-10-14-squai-v2-design.md`; ledger: `/Users/ryoochi/rstaff/var/specs/squai/squai-v2-squad.tasks.md`
 - v1 spec: `docs/specs/2026-10-14-squai-v1-spec.md`
 - rstaff profile: `/Users/ryoochi/rstaff/profiles/squai.md`
 - CI: `.github/workflows/verify.yml`; PR #2: https://github.com/ryoochi0112/squai/pull/2
