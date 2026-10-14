@@ -24,19 +24,25 @@ public enum CLIError: Error, Equatable, Sendable {
 public struct CLIRunner: CLIRunning {
     public init() {}
 
+    /// Cancelling the calling task terminates the child (SIGTERM now, SIGKILL after 2 s).
     public func run(_ inv: CLIInvocation) async throws -> CLIResult {
-        try await withCheckedThrowingContinuation { continuation in
-            DispatchQueue.global(qos: .userInitiated).async {
-                do {
-                    continuation.resume(returning: try Self.runProcess(inv))
-                } catch {
-                    continuation.resume(throwing: error)
+        let canceller = CLICanceller()
+        return try await withTaskCancellationHandler {
+            try await withCheckedThrowingContinuation { continuation in
+                DispatchQueue.global(qos: .userInitiated).async {
+                    do {
+                        continuation.resume(returning: try Self.runProcess(inv, canceller: canceller))
+                    } catch {
+                        continuation.resume(throwing: error)
+                    }
                 }
             }
+        } onCancel: {
+            canceller.cancel()
         }
     }
 
-    private static func runProcess(_ inv: CLIInvocation) throws -> CLIResult {
+    private static func runProcess(_ inv: CLIInvocation, canceller: CLICanceller) throws -> CLIResult {
         let process = Process()
         process.executableURL = inv.executable
         process.arguments = inv.arguments
@@ -61,6 +67,7 @@ public struct CLIRunner: CLIRunning {
         } catch {
             throw CLIError.launchFailed(error.localizedDescription)
         }
+        canceller.attach(process)
 
         let io = DispatchGroup()
         let stdout = CLIDataBuffer()
@@ -124,7 +131,7 @@ public struct CLIRunner: CLIRunning {
                          stderr: stderrText, output: resultOutput)
     }
 
-    private static func signal(_ process: Process, _ value: Int32) {
+    fileprivate static func signal(_ process: Process, _ value: Int32) {
         guard process.isRunning else { return }
         let pid = process.processIdentifier
         // Foundation launches macOS children in their own process group. Signal that
@@ -153,5 +160,33 @@ private final class CLIDataBuffer: @unchecked Sendable {
         lock.lock()
         defer { lock.unlock() }
         return data
+    }
+}
+
+/// Lets a cancelled task terminate the child it launched, even if cancellation arrives before launch.
+private final class CLICanceller: @unchecked Sendable {
+    private let lock = NSLock()
+    private var process: Process?
+    private var cancelled = false
+
+    func attach(_ process: Process) {
+        lock.lock()
+        self.process = process
+        let already = cancelled
+        lock.unlock()
+        if already { terminate(process) }
+    }
+
+    func cancel() {
+        lock.lock()
+        cancelled = true
+        let current = process
+        lock.unlock()
+        if let current { terminate(current) }
+    }
+
+    private func terminate(_ process: Process) {
+        CLIRunner.signal(process, SIGTERM)
+        DispatchQueue.global().asyncAfter(deadline: .now() + 2) { CLIRunner.signal(process, SIGKILL) }
     }
 }

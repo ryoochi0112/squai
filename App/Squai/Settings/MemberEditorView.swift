@@ -12,6 +12,7 @@ extension KeyboardShortcuts.Name {
 /// Create form (member == nil) or edit form for one member.
 struct MemberEditorView: View {
     @ObservedObject var store: MemberStore
+    @ObservedObject private var generator = LookGenerator.shared
     /// nil = create a new member.
     let member: SquadMember?
     let onSaved: (String) -> Void
@@ -46,6 +47,9 @@ struct MemberEditorView: View {
             }
             if member == nil {
                 LookPickerView(looks: store.looks, selectedID: $lookKey)
+                GenerateLookView(generator: generator) { look in
+                    lookKey = LookPickerView.key(look)
+                }
             } else if let member {
                 Text("Look: \(member.pet.displayName)").foregroundStyle(.secondary)
             }

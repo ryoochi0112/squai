@@ -18,31 +18,6 @@ struct SettingsView: View {
     }
 }
 
-/// Placeholder until T9: the current Claude key UI.
-private struct BackendsSettingsView: View {
-    @State private var apiKey = Keychain.read(service: Keychain.anthropicService) ?? ""
-    @State private var saved = false
-
-    var body: some View {
-        Form {
-            Section("Claude") {
-                SecureField("Anthropic API key", text: $apiKey)
-                HStack {
-                    Button("Save to Keychain") {
-                        saved = apiKey.isEmpty
-                            ? Keychain.delete(service: Keychain.anthropicService)
-                            : Keychain.write(apiKey, service: Keychain.anthropicService)
-                    }
-                    if saved { Text("Saved").foregroundStyle(.secondary) }
-                }
-                Text("Used only when the Claude CLI is not available. Model: claude-haiku-5-5.")
-                    .font(.caption).foregroundStyle(.secondary)
-            }
-        }
-        .formStyle(.grouped)
-    }
-}
-
 private struct GeneralSettingsView: View {
     @State private var launchAtLogin = SMAppService.mainApp.status == .enabled
 

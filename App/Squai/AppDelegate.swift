@@ -17,6 +17,7 @@ private struct CLICache: Sendable {
 
 @MainActor
 final class AppDelegate: NSObject, NSApplicationDelegate {
+    private var quitWaitingForChild = false
     private var statusItem: StatusItemController!
     private var squad: SquadController!
     private var memberStore: MemberStore!
@@ -63,9 +64,31 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             pets: { PetLibrary(searchPaths: Self.petSearchPaths).scan() }
         )
 
+        let generator = LookGenerator.shared
+        generator.supportRoot = support
+        generator.onLookAdded = { [weak self] in self?.memberStore.refresh() }
+        generator.sweepStaleRuns()
+
         reloadSquad()
         SelectionCapture.requestAccessibilityIfNeeded()
         if squad.members.isEmpty { showSettings() } // onboarding: Settings opens on Squad → New member
+    }
+
+    func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
+        let generator = LookGenerator.shared
+        guard generator.hasLiveChild else { return .terminateNow }
+        if !quitWaitingForChild {
+            quitWaitingForChild = true
+            Task { @MainActor in
+                await generator.terminateAndWait() // SIGTERM, SIGKILL after 2 s, wait for reap (<= 6 s)
+                NSApp.reply(toApplicationShouldTerminate: true)
+            }
+        }
+        return .terminateLater
+    }
+
+    func applicationWillTerminate(_ notification: Notification) {
+        LookGenerator.shared.cancel()
     }
 
     static var petSearchPaths: [URL] {
