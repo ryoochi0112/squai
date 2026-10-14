@@ -2,8 +2,25 @@ import SwiftUI
 import ServiceManagement
 
 struct SettingsView: View {
+    @ObservedObject var store: MemberStore
+    let onReload: () -> Void
+
+    var body: some View {
+        TabView {
+            SquadSettingsView(store: store, onReload: onReload)
+                .tabItem { Label("Squad", systemImage: "person.3") }
+            BackendsSettingsView()
+                .tabItem { Label("Backends", systemImage: "key") }
+            GeneralSettingsView()
+                .tabItem { Label("General", systemImage: "gearshape") }
+        }
+        .frame(width: 760, height: 620)
+    }
+}
+
+/// Placeholder until T9: the current Claude key UI.
+private struct BackendsSettingsView: View {
     @State private var apiKey = Keychain.read(service: Keychain.anthropicService) ?? ""
-    @State private var launchAtLogin = SMAppService.mainApp.status == .enabled
     @State private var saved = false
 
     var body: some View {
@@ -21,6 +38,16 @@ struct SettingsView: View {
                 Text("Used only when the Claude CLI is not available. Model: claude-haiku-5-5.")
                     .font(.caption).foregroundStyle(.secondary)
             }
+        }
+        .formStyle(.grouped)
+    }
+}
+
+private struct GeneralSettingsView: View {
+    @State private var launchAtLogin = SMAppService.mainApp.status == .enabled
+
+    var body: some View {
+        Form {
             Section("General") {
                 Toggle("Launch at login", isOn: $launchAtLogin)
                     .onChange(of: launchAtLogin) { _, on in
@@ -31,6 +58,5 @@ struct SettingsView: View {
             }
         }
         .formStyle(.grouped)
-        .frame(width: 440, height: 360)
     }
 }

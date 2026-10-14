@@ -19,6 +19,7 @@ private struct CLICache: Sendable {
 final class AppDelegate: NSObject, NSApplicationDelegate {
     private var statusItem: StatusItemController!
     private var squad: SquadController!
+    private var memberStore: MemberStore!
     private var settings: SettingsWindowController?
     private let hotkeys = HotkeyRegistry()
     private var routerTask: Task<BackendRouter, Never>!
@@ -44,7 +45,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             lookRoots.append((bundled, .bundled))
         }
         lookRoots.append((FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent(".codex/pets", isDirectory: true), .codex))
-        squad = SquadController(library: SquadLibrary(memberRoot: memberRoot, lookRoots: lookRoots))
+        let library = SquadLibrary(memberRoot: memberRoot, lookRoots: lookRoots)
+        squad = SquadController(library: library)
+        memberStore = MemberStore(library: library, squad: squad)
+        memberStore.onChange = { [weak self] in self?.reloadSquad() }
+        memberStore.resyncHotkeys = { [weak self] in
+            guard let self else { return }
+            self.hotkeys.sync(members: self.squad.members)
+        }
         squad.onLeftClick = { [weak self] member in self?.run(memberID: member.id) }
         squad.onRightClick = { [weak self] member in self?.showLast(memberID: member.id) }
         hotkeys.onHotkey = { [weak self] id in self?.run(memberID: id) }
@@ -57,6 +65,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
         reloadSquad()
         SelectionCapture.requestAccessibilityIfNeeded()
+        if squad.members.isEmpty { showSettings() } // onboarding: Settings opens on Squad → New member
     }
 
     static var petSearchPaths: [URL] {
@@ -112,6 +121,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             bubbles[id] = nil
         }
         lastResult = lastResult.filter { ids.contains($0.key) }
+        memberStore.refresh()
     }
 
     /// One bubble per member, anchored to that member's pet (or the default spot when hidden).
@@ -237,7 +247,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     func showSettings() {
-        if settings == nil { settings = SettingsWindowController() }
+        if settings == nil { settings = SettingsWindowController(store: memberStore, onReload: { [weak self] in self?.reloadSquad() }) }
         settings?.showWindow(nil)
         NSApp.activate(ignoringOtherApps: true)
     }
