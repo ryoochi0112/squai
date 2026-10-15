@@ -1,36 +1,91 @@
 import AppKit
 import SquaiCore
-import KeyboardShortcuts
+
+/// A member's latest result and the app its selection came from (Replace pastes only there).
+private struct MemberResult {
+    let id = UUID()
+    var body: String
+    var context: CaptureContext
+}
 
 @MainActor
 final class AppDelegate: NSObject, NSApplicationDelegate {
+    private var quitWaitingForChild = false
     private var statusItem: StatusItemController!
-    private var pet: PetController!
-    private var bubble: BubbleController!
+    private var squad: SquadController!
+    private var memberStore: MemberStore!
     private var settings: SettingsWindowController?
-    let registry = SkillRegistry()
+    private let hotkeys = HotkeyRegistry()
+    private var routerTask: Task<BackendRouter, Never>!
+    /// Per-member state keyed by id. All of it is pruned to the current members on reload.
+    private var bubbles: [String: BubbleController] = [:]
+    private var lastResult: [String: MemberResult] = [:]
+    /// Identity of the in-flight run per member; reload drops it when the member vanishes or changes.
+    private var runs: [String: UUID] = [:]
+    /// The system pasteboard is shared by capture (⌘C + restore) and Replace (⌘V + restore).
+    /// They must not interleave, or one restores the other's borrowed contents over the user's.
+    private var capturing = 0
+    private var replacing = false
 
     func applicationDidFinishLaunching(_ notification: Notification) {
-        registry.register(TranslateSkill(
-            onDevice: AppleTranslationBackend(),
-            premium: ClaudeBackend(apiKeyProvider: { Keychain.read(service: Keychain.anthropicService) })
-        ))
+        let resolver = CLIResolver.shared
+        routerTask = Task {
+            await resolver.refresh()
+            return Self.makeRouter(resolver: resolver)
+        }
 
-        pet = PetController()
-        bubble = BubbleController(anchor: pet)
+        let support = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
+            .appendingPathComponent("squai", isDirectory: true)
+        let memberRoot = support.appendingPathComponent("pets", isDirectory: true)
+        try? FileManager.default.createDirectory(at: memberRoot, withIntermediateDirectories: true)
+        var lookRoots: [(URL, Look.Source)] = [(support.appendingPathComponent("looks", isDirectory: true), .squai)]
+        if let bundled = Bundle.main.resourceURL?.appendingPathComponent("Pets", isDirectory: true) {
+            lookRoots.append((bundled, .bundled))
+        }
+        lookRoots.append((FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent(".codex/pets", isDirectory: true), .codex))
+        let library = SquadLibrary(memberRoot: memberRoot, lookRoots: lookRoots)
+        squad = SquadController(library: library)
+        memberStore = MemberStore(library: library, squad: squad)
+        memberStore.onChange = { [weak self] in self?.reloadSquad() }
+        memberStore.resyncHotkeys = { [weak self] in
+            guard let self else { return }
+            self.hotkeys.sync(members: self.squad.members)
+        }
+        squad.onLeftClick = { [weak self] member in self?.run(memberID: member.id) }
+        squad.onRightClick = { [weak self] member in self?.showLast(memberID: member.id) }
+        hotkeys.onHotkey = { [weak self] id in self?.run(memberID: id) }
         statusItem = StatusItemController(
-            onTranslate: { [weak self] in self?.runTranslate(premium: false) },
             onSettings: { [weak self] in self?.showSettings() },
-            onPickPet: { [weak self] in self?.pet.load(pet: $0) },
+            onReloadSquad: { [weak self] in self?.reloadSquad() },
+            onPickPet: { [weak self] in self?.firstVisiblePet?.load(pet: $0) },
             pets: { PetLibrary(searchPaths: Self.petSearchPaths).scan() }
         )
-        pet.onClick = { [weak self] in self?.bubble.showLast() }
 
-        KeyboardShortcuts.onKeyUp(for: .translateSelection) { [weak self] in self?.runTranslate(premium: false) }
-        KeyboardShortcuts.onKeyUp(for: .translateSelectionPremium) { [weak self] in self?.runTranslate(premium: true) }
+        let generator = LookGenerator.shared
+        generator.supportRoot = support
+        generator.onLookAdded = { [weak self] in self?.memberStore.refresh() }
+        generator.sweepStaleRuns()
 
-        pet.show()
+        reloadSquad()
         SelectionCapture.requestAccessibilityIfNeeded()
+        if squad.members.isEmpty { showSettings() } // onboarding: Settings opens on Squad → New member
+    }
+
+    func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
+        let generator = LookGenerator.shared
+        guard generator.hasLiveChild else { return .terminateNow }
+        if !quitWaitingForChild {
+            quitWaitingForChild = true
+            Task { @MainActor in
+                await generator.terminateAndWait() // SIGTERM, SIGKILL after 2 s, wait for reap (<= 6 s)
+                NSApp.reply(toApplicationShouldTerminate: true)
+            }
+        }
+        return .terminateLater
+    }
+
+    func applicationWillTerminate(_ notification: Notification) {
+        LookGenerator.shared.cancel()
     }
 
     static var petSearchPaths: [URL] {
@@ -41,47 +96,170 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         return paths
     }
 
-    func runTranslate(premium: Bool) {
-        guard let skill = registry.skill(id: "translate.ja-en") else { return }
+    // MARK: Router
+
+    /// The router asks the shared resolver on every run, so Settings → Backends → Recheck
+    /// and a CLI removed after launch take effect without a relaunch.
+    private static func makeRouter(resolver: CLIResolver) -> BackendRouter {
+        BackendRouter(
+            locateCLI: { resolver.locate($0) },
+            childPATH: { resolver.childPATH(for: $0) },
+            claudeKey: { Keychain.read(service: Keychain.anthropicService) },
+            runner: CLIRunner(),
+            transport: URLSessionTransport(),
+            makeRunDirectory: { try CLILocator.makeRunDirectory() })
+    }
+
+    // MARK: Squad
+
+    private var firstVisiblePet: PetController? {
+        guard let first = squad.members.first(where: { $0.skill.visible }) else { return nil }
+        return squad.pet(for: first.id)
+    }
+
+    func reloadSquad() {
+        let before = squad.members
+        squad.reload()
+        for old in before {
+            let current = squad.members.first(where: { $0.id == old.id })
+            if current == nil || current?.folder != old.folder || current?.skill != old.skill {
+                runs[old.id] = nil
+            }
+        }
+        hotkeys.sync(members: squad.members)
+        let ids = Set(squad.members.map(\.id))
+        for id in bubbles.keys where !ids.contains(id) {
+            bubbles[id]?.hide()
+            bubbles[id] = nil
+        }
+        lastResult = lastResult.filter { ids.contains($0.key) }
+        memberStore.refresh()
+    }
+
+    /// One bubble per member, anchored to that member's pet (or the default spot when hidden).
+    private func bubble(for id: String) -> BubbleController {
+        if let existing = bubbles[id] { return existing }
+        let bubble = BubbleController(anchorFrame: { [weak self] in
+            if let pet = self?.squad.pet(for: id) { return pet.panel.frame }
+            return NSRect(origin: PetController.defaultOrigin(), size: PetController.displaySize)
+        })
+        bubble.onOpenSettings = { [weak self] in self?.showSettings() }
+        bubble.onReplace = { [weak self] body in self?.replace(memberID: id, body: body) }
+        bubbles[id] = bubble
+        return bubble
+    }
+
+    // MARK: Run
+
+    private func showLast(memberID id: String) {
+        guard squad.members.contains(where: { $0.id == id }) else { return }
+        if let last = lastResult[id] {
+            bubble(for: id).show(.result(last.body))
+        } else {
+            bubble(for: id).show(.info("No result yet"))
+        }
+    }
+
+    private func run(memberID id: String) {
+        guard let member = squad.members.first(where: { $0.id == id }) else { return }
+        guard runs[id] == nil else { return }
+        guard !replacing else { return }
+        guard SelectionCapture.isTrusted else {
+            NSLog("squai: Accessibility not granted for this build")
+            squad.pet(for: id)?.set(state: .waiting)
+            bubble(for: id).show(.error("Accessibility access is off for this build of squai. Ad-hoc signed Debug builds lose the grant on every rebuild: open System Settings → Privacy & Security → Accessibility, remove squai, and add it again."))
+            SelectionCapture.requestAccessibilityIfNeeded()
+            return
+        }
+        let token = UUID()
+        runs[id] = token
+        squad.pet(for: id)?.set(state: .running, revertAfter: nil)
         Task { @MainActor in
-            pet.set(state: .running)
+            defer { if runs[id] == token { runs[id] = nil } }
             do {
-                let text = try await SelectionCapture.selectedText()
-                let out = try await skill.run(SkillInput(text: text, preferPremium: premium))
-                pet.set(state: out.state)
-                bubble.show(.result(out, source: text))
-            } catch TranslationError.languagePackMissing(let s, let t) {
-                pet.set(state: .waiting)
-                bubble.show(.languagePackMissing(source: s, target: t))
-            } catch TranslationError.missingAPIKey {
-                pet.set(state: .waiting)
-                showSettings()
+                capturing += 1
+                let captured: (text: String, context: CaptureContext)
+                do {
+                    captured = try await SelectionCapture.selectedText()
+                    capturing -= 1
+                } catch {
+                    capturing -= 1
+                    throw error
+                }
+                guard runs[id] == token else { return }
+                let prompt = PromptAssembler.assemble(prompt: member.skill.prompt, selection: captured.text)
+                let router = await routerTask.value
+                guard runs[id] == token else { return }
+                let body = try await router.run(backend: member.skill.backend, prompt: prompt)
+                guard runs[id] == token else { return }
+                lastResult[id] = MemberResult(body: body, context: captured.context)
+                squad.pet(for: id)?.set(state: .review)
+                bubble(for: id).show(.result(body))
             } catch {
-                pet.set(state: .failed)
-                bubble.show(.error(String(describing: error)))
+                guard runs[id] == token else { return }
+                if case BackendError.notSetUp(let backend) = error {
+                    squad.pet(for: id)?.set(state: .waiting)
+                    bubble(for: id).show(.notSetUp(backendName: Self.name(backend)))
+                    return
+                }
+                NSLog("squai: member %@ run failed: %@", id, String(describing: error))
+                squad.pet(for: id)?.set(state: .failed)
+                bubble(for: id).show(.error(Self.describe(error)))
             }
         }
     }
 
-    func rerunPremium(source: String) {
-        guard let skill = registry.skill(id: "translate.ja-en") else { return }
+    /// Pastes the member's latest result into the app its selection came from.
+    /// Success hides the bubble; failure leaves the body on the pasteboard and says so.
+    private func replace(memberID id: String, body: String) {
+        guard !replacing, capturing == 0 else { return }
+        guard squad.members.contains(where: { $0.id == id }), let last = lastResult[id] else { return }
+        guard last.body == body else {
+            // The bubble shows something other than the stored result: never paste it blind.
+            ReplaceService.copy(body)
+            bubble(for: id).show(.info("Copied — could not replace"))
+            return
+        }
+        replacing = true
         Task { @MainActor in
-            pet.set(state: .running)
-            do {
-                let out = try await skill.run(SkillInput(text: source, preferPremium: true))
-                pet.set(state: out.state)
-                bubble.show(.result(out, source: source))
-            } catch TranslationError.missingAPIKey {
-                showSettings()
-            } catch {
-                pet.set(state: .failed)
-                bubble.show(.error(String(describing: error)))
+            let ok = await ReplaceService.replace(body, into: last.context)
+            replacing = false
+            // The member may have been removed, or a newer result shown, while pasting.
+            guard lastResult[id]?.id == last.id, let bubble = bubbles[id] else { return }
+            if ok {
+                bubble.hide()
+            } else {
+                bubble.show(.info("Copied — could not replace"))
             }
+        }
+    }
+
+    static func name(_ backend: Backend) -> String {
+        backend == .claude ? "Claude" : "ChatGPT"
+    }
+
+    static func describe(_ error: Error) -> String {
+        switch error {
+        case SelectionCapture.CaptureError.noSelection(let detail):
+            return "No selected text was found. Select text first, then click a pet or press its hotkey.\n\nDiagnostics: \(detail)"
+        case BackendError.notSetUp(let backend):
+            return "\(name(backend)) is not set up."
+        case BackendError.notLoggedIn(let backend):
+            let command = backend == .claude ? "`claude`" : "`codex login`"
+            return "\(name(backend)) is not logged in. Run \(command) once in Terminal."
+        case BackendError.timedOut(let backend, let seconds):
+            return "\(name(backend)) took too long (\(Int(seconds)) s). Try again."
+        case BackendError.failed(_, let message):
+            return message
+        case BackendError.empty:
+            return "The response came back empty."
+        default:
+            return String(describing: error)
         }
     }
 
     func showSettings() {
-        if settings == nil { settings = SettingsWindowController() }
+        if settings == nil { settings = SettingsWindowController(store: memberStore, onReload: { [weak self] in self?.reloadSquad() }) }
         settings?.showWindow(nil)
         NSApp.activate(ignoringOtherApps: true)
     }

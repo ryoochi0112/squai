@@ -1,8 +1,9 @@
 # squai v2 — build your own AI squad (spec)
 
-Date: 2026-10-14. Status: draft for `/rstaff-engineer:design`. Supersedes the single-pet,
-translate-only model of `docs/specs/2026-10-14-squai-v1-spec.md`. Grill transcript: session
-2026-10-14 (decisions recorded in §5).
+Date: 2026-10-14. Status: designed — architecture in `docs/specs/2026-10-14-squai-v2-design.md`.
+Supersedes the single-pet, translate-only model of `docs/specs/2026-10-14-squai-v1-spec.md`.
+Grill transcript: session 2026-10-14 (decisions recorded in §5). AC4, AC7, AC8, AC13, AC14 were
+revised during design (§5 rows 12–17).
 
 ## 1. Problem & user value
 
@@ -45,7 +46,8 @@ Each criterion is checked manually in the running Debug app unless it names `swi
    and reloading removes the pet and its GUI row. Falsifier: GUI shows PING, the bubble shows
    PING, or the deleted member persists.
 4. **Click runs the skill.** With text selected in Safari, VS Code, and Slack, left-clicking a
-   visible pet captures the selection and, within 10 s, shows a bubble next to that pet
+   visible pet captures the selection and, within 10 s for a Claude member or 20 s for a
+   ChatGPT member, shows a bubble next to that pet
    containing the backend's response to `prompt + "\n\n" + selection`. The source app keeps
    focus and its selection. Falsifier: no bubble, bubble on the wrong pet, source app loses
    focus or selection, or the response ignores the prompt (test with prompt
@@ -59,18 +61,19 @@ Each criterion is checked manually in the running Debug app unless it names `swi
    the pet → bubble `alpha`. Select `beta`, right-click → bubble still `alpha` (no run). With
    `beta` still selected, left-click → bubble `beta`. Falsifier: right-click after selecting
    `beta` shows `beta`, or left-click with `beta` selected shows `alpha`.
-7. **Backend via CLI.** Confirm Keychain holds no `com.squai.anthropic` / `com.squai.openai`
-   item. Put a shim `claude` first on `PATH` that appends its arguments and stdin to
+7. **Backend via CLI.** Confirm Keychain holds no `com.squai.anthropic` item. Put a shim `claude` first on `PATH` that appends its arguments and stdin to
    `/tmp/squai-cli.log` and prints `SHIM-OK`; run a Claude member → bubble body `SHIM-OK` and the
    log contains `-p` plus the assembled prompt. Repeat with a shim `codex` for a ChatGPT member
-   (log contains `exec`). Settings shows per backend one of: "CLI found (<path>)", "CLI not
-   found", "API key set"; renaming the shim away flips it to "CLI not found". Falsifier: the run
+   (log contains `exec`). Settings shows for Claude one of: "CLI found (<path>)", "CLI not
+   found", "API key set", and for ChatGPT one of: "CLI found (<path>)", "CLI not found";
+   renaming the shim away flips it to "CLI not found". Falsifier: the run
    asks for an API key, the log is empty, the body is not `SHIM-OK`, or the status line does not
    flip.
-8. **API key fallback.** With the CLI absent and an API key stored in Keychain (service
-   `com.squai.anthropic` / `com.squai.openai`), the run succeeds through the Messages API
-   (Claude) or Responses API (ChatGPT). With neither CLI nor key, the bubble reads
-   "<Backend> is not set up" with a button that opens Settings. Keys are never written outside
+8. **API key fallback (Claude only).** With the `claude` CLI absent and an API key stored in
+   Keychain service `com.squai.anthropic`, a Claude member's run succeeds through the Messages
+   API. With neither CLI nor key, the bubble reads "Claude is not set up" with a button that
+   opens Settings. A ChatGPT member with no `codex` CLI shows "ChatGPT is not set up" with the
+   same button (the ChatGPT API-key fallback is deferred to v2.1). Keys are never written outside
    Keychain (`grep -r` of Application Support and Preferences finds none). Falsifier: any of
    these three states behaves differently.
 9. **Copy and Replace.** The result bubble has Copy and Replace. Copy puts the body on the
@@ -94,21 +97,27 @@ Each criterion is checked manually in the running Debug app unless it names `swi
     hotkey, and look, with no GUI step. Falsifier: any field lost, or the member needs manual
     re-creation.
 13. **Generate a look.** In the create form, "Generate look" takes a text description and,
-    with an OpenAI API key set, saves `spritesheet.png` into the member folder. Checks: `sips -g
-    pixelWidth -g pixelHeight` reports 1536×1872; the form's "Preview rows" control lists the 9
-    row names (idle, running-left, running-right, waving, jumping, failed, waiting, running,
-    review) and selecting each plays that row's 8 cells in the preview, with no cell fully
-    transparent (the `swift test` slicer case in AC14 counts 72 non-empty cells for the saved
-    file). Without a key, pressing the button shows inline text "Needs an OpenAI API key
-    (Settings)" and "Make one in Codex with /hatch — it appears here automatically", and no
-    dialog. Falsifier: wrong dimensions, a row name missing from Preview rows, a row whose
-    preview does not change frames, an empty cell, or a dialog on the no-key path.
+    with the `codex` CLI logged in to ChatGPT and the `hatch-pet` Codex skill installed, runs
+    in the background (the form shows "Generating…" and a Cancel button; no API key is used)
+    and, on success, adds a look folder under `~/Library/Application Support/squai/looks/<id>/`
+    that appears in the look picker. Checks: `sips -g pixelWidth -g pixelHeight` on its sheet
+    reports 1536×1872; the form's "Preview rows" control lists the 9 row names (idle,
+    running-left, running-right, waving, jumping, failed, waiting, running, review) and
+    selecting each plays that row's frames, every row having at least one non-transparent cell
+    (the AC14 validator passes on the file); `~/.codex/pets/` gains no file. Without `codex` or
+    without `hatch-pet`, pressing the button shows inline text naming the missing piece and
+    "Make one in Codex with /hatch — it appears here automatically", and no dialog.
+    Falsifier: wrong dimensions, a row name missing from Preview rows, a row with no visible
+    frame, a file written to `~/.codex/pets/`, or a dialog on the not-available path.
 14. **Unit tests.** `swift test` passes for: `skill.json` decode/encode round-trip (all five
     fields plus unknown-field tolerance), member-folder scan (look-only vs full member),
     prompt assembly (`prompt + "\n\n" + selection`), hotkey-collision detection, the CLI
-    argument builder for `claude -p` and `codex exec`, and a sprite-sheet slicer check that a
-    given PNG yields 72 cells of 192×208 with none fully transparent. Falsifier: any listed
-    test absent or failing.
+    argument builder for `claude -p` and `codex exec`, the CLI runner against a shim script
+    (stdin delivered, stdout returned, timeout kills the child), and a sprite-sheet validator
+    that accepts a 1536×1872 sheet whose 9 rows each have at least one non-transparent
+    192×208 cell and rejects a wrong size or an all-transparent row (fully transparent unused
+    cells are allowed, per the Codex pet contract). Falsifier: any listed test absent or
+    failing.
 15. **Translate member parity.** A member with prompt "Translate between Japanese and English;
     detect the direction; output only the translation" run on `こんにちは` yields an English
     bubble and on `hello` yields a Japanese bubble. Falsifier: wrong direction or extra
@@ -134,14 +143,15 @@ the Polite pet:
 
 **In:** member folders; Squad GUI (create/edit/delete/reload/visible toggle); click + hotkey
 invocation; Claude and ChatGPT via CLI with API-key fallback; Copy/Replace; multi-pet overlay;
-Codex look import; OpenAI Images generation; onboarding to the create form; removal of the
+Codex look import; look generation through `codex exec` + the `hatch-pet` skill; onboarding to the create form; removal of the
 Apple Translation backend and the v1 `TranslateSkill`.
 
 **Out:** local inference (Apple Foundation Models, Apple Translation); a member picker popup;
 driving Claude.app / ChatGPT.app by automation; per-member default output mode (auto-copy /
 auto-replace) and Undo; engine-type skills other than prompt; chat with a pet; multiple skills
 per pet; a pet marketplace or cloud sync; Windows/Linux; App Store sandbox; streaming
-responses; image or file input (text selection only).
+responses; image or file input (text selection only); the ChatGPT Responses-API key fallback
+(v2.1); the OpenAI Images API path.
 
 ## 4b. Git / repository process
 
@@ -153,7 +163,8 @@ responses; image or file input (text selection only).
   no direct pushes, no force pushes, no deletions. Admin is not exempt. Merge is a human
   action.
 - **Branching:** one branch per change (`feat/…`, `fix/…`); squash merge allowed.
-- **Secrets:** API keys live only in Keychain (`com.squai.anthropic`, `com.squai.openai`).
+- **Secrets:** the Claude API key lives only in Keychain (`com.squai.anthropic`); v2 stores no
+  OpenAI key.
   Nothing in the repo, CI, or test fixtures may contain a real key; AC8 greps for this.
 - **Manual ACs:** CI proves only `SquaiCore` tests and the Debug build. Overlay, capture,
   bubble, and CLI behavior are ticked in this spec by a human after seeing them.
@@ -171,24 +182,18 @@ Decisions from the grill (2026-10-14):
 | 5 | Backend | Per member: Claude or ChatGPT. Primary = user's subscription via `claude -p` / `codex exec`; API key only as fallback. |
 | 6 | Invocation | Click the pet + optional per-member hotkey. No popup. Right-click = last result. |
 | 7 | Display | All members at once; per-member visible toggle; hidden = hotkey only. |
-| 8 | Looks | Bundled library + Codex folder import + `/hatch` guidance + own generation (OpenAI Images). |
+| 8 | Looks | Bundled library + Codex folder import + `/hatch` guidance + own generation (revised by row 12). |
 | 9 | Output | Bubble + Copy + Replace (explicit button). |
 | 10 | First run | Empty squad; onboarding opens the create form. |
 | 11 | File structure | 1 folder = 1 member (`pet.json` + sheet + `skill.json`). Zip = share unit. |
 
-Still open (human call before `/rstaff-engineer:design`):
+Resolved during `/rstaff-engineer:design` (2026-10-14; evidence in the design doc §2):
 
-- **Image generation alternatives.** The user welcomes a better option than an OpenAI API key.
-  Research: does Codex CLI expose image generation under a ChatGPT subscription? Does Claude
-  Code offer any image tool? Could a text-LLM pixel-grid fallback be acceptable quality? Report
-  findings; the OpenAI Images path stays the v2 default until then.
-- **CLI invocation model.** `claude -p` and `codex exec` may start slow (multi-second) and
-  may read the current directory; design must pick a working directory and a timeout and
-  confirm neither CLI writes to the user's project. AC4's 10 s budget is a placeholder to tune.
-- **ChatGPT API fallback.** Confirm the Responses API model to use and whether a key-only user
-  is realistic given the "subscription first" stance; could be deferred to v2.1 if CLI coverage
-  is sufficient.
-- **Default hotkey for the first member.** None assigned by default; confirm the onboarding
-  should suggest one.
-- **Replace mechanism.** AX `kAXSelectedTextAttribute` write vs synthetic ⌘V; design decides,
-  AC9 only fixes the observable behavior.
+| # | Question | Decision |
+|---|---|---|
+| 12 | Image generation | `codex exec` with the `hatch-pet` skill under the ChatGPT subscription; no API key. OpenAI Images API path dropped. Measured: Codex built-in `image_gen` returned a 1536×1024 RGBA PNG in ~70 s with no `OPENAI_API_KEY`. |
+| 13 | CLI invocation | Per-run empty temp dir as cwd; prompt on stdin; tools, settings, MCP, and session persistence off; hard timeout 30 s (Claude) / 60 s (ChatGPT). Measured no writes to cwd. |
+| 14 | Latency budget | AC4: Claude ≤10 s (measured 3.5 s), ChatGPT ≤20 s (measured 8–10 s at low effort). |
+| 15 | ChatGPT API fallback | Deferred to v2.1. v2 ChatGPT = `codex exec` only. |
+| 16 | Default hotkey | None assigned. The hotkey field suggests ⌥⌘1 as placeholder text. A hidden member must have a hotkey. |
+| 17 | Replace mechanism | Synthetic ⌘V with clipboard save/restore, guarded by "frontmost app is still the capture app". AX `kAXSelectedTextAttribute` write is not used. |

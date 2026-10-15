@@ -4,18 +4,18 @@ import SquaiCore
 @MainActor
 final class StatusItemController: NSObject, NSMenuDelegate {
     private let item: NSStatusItem
-    private let onTranslate: () -> Void
     private let onSettings: () -> Void
+    private let onReloadSquad: () -> Void
     private let onPickPet: (InstalledPet) -> Void
     private let pets: () -> [InstalledPet]
     private var currentPets: [InstalledPet] = []
 
-    init(onTranslate: @escaping () -> Void,
-         onSettings: @escaping () -> Void,
+    init(onSettings: @escaping () -> Void,
+         onReloadSquad: @escaping () -> Void,
          onPickPet: @escaping (InstalledPet) -> Void,
          pets: @escaping () -> [InstalledPet]) {
-        self.onTranslate = onTranslate
         self.onSettings = onSettings
+        self.onReloadSquad = onReloadSquad
         self.onPickPet = onPickPet
         self.pets = pets
         item = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
@@ -28,8 +28,6 @@ final class StatusItemController: NSObject, NSMenuDelegate {
 
     func menuNeedsUpdate(_ menu: NSMenu) {
         menu.removeAllItems()
-        menu.addItem(withTitle: "Translate Selection", action: #selector(translate), keyEquivalent: "").target = self
-
         let petsMenu = NSMenu()
         currentPets = pets()
         for (i, pet) in currentPets.enumerated() {
@@ -46,14 +44,15 @@ final class StatusItemController: NSObject, NSMenuDelegate {
         petsItem.submenu = petsMenu
         menu.addItem(petsItem)
 
+        menu.addItem(withTitle: "Reload Squad", action: #selector(reloadSquad), keyEquivalent: "").target = self
         menu.addItem(.separator())
         menu.addItem(withTitle: "Settings…", action: #selector(settings), keyEquivalent: ",").target = self
         menu.addItem(.separator())
         menu.addItem(withTitle: "Quit squai", action: #selector(quit), keyEquivalent: "q").target = self
     }
 
-    @objc private func translate() { onTranslate() }
     @objc private func settings() { onSettings() }
+    @objc private func reloadSquad() { onReloadSquad() }
     @objc private func quit() { NSApp.terminate(nil) }
     @objc private func pickPet(_ sender: NSMenuItem) {
         guard currentPets.indices.contains(sender.tag) else { return }

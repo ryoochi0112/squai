@@ -2,40 +2,37 @@ import SwiftUI
 import SquaiCore
 
 enum BubbleContent {
-    case result(SkillOutput, source: String)
-    case languagePackMissing(source: String, target: String)
+    case result(String)
+    case info(String)
+    case notSetUp(backendName: String)
     case error(String)
 }
 
 struct BubbleView: View {
     let content: BubbleContent
     let onCopy: (String) -> Void
-    let onAskClaude: (String) -> Void
-    let onDownloadPack: () -> Void
+    let onReplace: (String) -> Void
+    let onOpenSettings: () -> Void
     let onClose: () -> Void
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             switch content {
-            case .result(let out, let source):
-                Text(out.body).font(.body).textSelection(.enabled)
-                if let note = out.note {
-                    Text(note).font(.caption).foregroundStyle(.secondary)
-                }
+            case .result(let body):
+                Text(body).font(.body).textSelection(.enabled)
                 HStack {
-                    Text(out.backend == "claude" ? "Claude Haiku" : "On-device").font(.caption2).foregroundStyle(.tertiary)
                     Spacer()
-                    Button("Copy") { onCopy(out.body) }
-                    if out.backend != "claude" {
-                        Button("Ask Claude") { onAskClaude(source) }
-                    }
+                    Button("Copy") { onCopy(body) }
+                    Button("Replace") { onReplace(body) }
                 }
-            case .languagePackMissing(let s, let t):
-                Text("The \(s)→\(t) language pack is not installed.")
-                HStack { Spacer(); Button("Download \(s)/\(t)") { onDownloadPack() } }
+            case .info(let msg):
+                Text(msg).font(.body)
+            case .notSetUp(let name):
+                Text("\(name) is not set up").font(.headline)
+                HStack { Spacer(); Button("Open Settings") { onOpenSettings() } }
             case .error(let msg):
                 Text("Something went wrong").font(.headline)
-                Text(msg).font(.caption).foregroundStyle(.secondary).lineLimit(4)
+                Text(msg).font(.caption).foregroundStyle(.secondary).textSelection(.enabled)
             }
         }
         .padding(12)

@@ -8,29 +8,40 @@
 
 /* Begin PBXBuildFile section */
 		0434707C56F11D7D9AB5863E /* Preferences.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9CBE189323AAAB828D227AA5 /* Preferences.swift */; };
+		068BACBE53864038170BFD2D /* BackendsSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DF63AC93ADD30667A0F4FF0 /* BackendsSettingsView.swift */; };
+		0B6FF57800379E3B395385EE /* ReplaceService.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2F60DC1D29AD20C1BBBC26E /* ReplaceService.swift */; };
 		1198B4FF795252432CB82202 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49DCA44985F35F01F6DF20E8 /* SettingsView.swift */; };
+		183E9AC1F353D5C2DCD2EFA8 /* MemberEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B174F06FBC8E20F03DBF8D1D /* MemberEditorView.swift */; };
 		1A80492D2BB635E86EB9EF6A /* Keychain.swift in Sources */ = {isa = PBXBuildFile; fileRef = 624037BF6D7668B1E3694EA9 /* Keychain.swift */; };
 		264FCB9D262A145DF16EAF89 /* SquaiCore in Frameworks */ = {isa = PBXBuildFile; productRef = A23A428EAD901B8D5B2826B2 /* SquaiCore */; };
 		3B77657DD48AC5123643C30C /* SelectionCapture.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF92DE0E38DBB3B95A760204 /* SelectionCapture.swift */; };
 		598A4838E8555110AC35C2A1 /* BubbleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9AAF00D6E4EC657AED4CFF5 /* BubbleView.swift */; };
+		61660C21B7FBB7353F98B17D /* LookGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCFA1CD0141A818CDDB3C9E7 /* LookGenerator.swift */; };
 		63E3224E013CFC15CB96E2BD /* PetSpriteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9130D86962D1221C2DA6D8A3 /* PetSpriteView.swift */; };
 		69031F74FFA6D463C50CCDF4 /* PetPanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85E5E38477B6BA50573FB755 /* PetPanel.swift */; };
+		7D1C1AAC40D89FBF1746B9BE /* SquadSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 182AA09EFFD3311A3AD599C1 /* SquadSettingsView.swift */; };
 		8CE878129506BA05B2947F3E /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = FD5FA0690B70FA19D58B41A2 /* main.swift */; };
+		8DA5C49069CE5832628166D0 /* SquadController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D09BC99758653CC3E34D5855 /* SquadController.swift */; };
 		9FB44A362E7D3AE708849A20 /* StatusItemController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A59E6DDB466F255B9AD074E8 /* StatusItemController.swift */; };
+		ABFACAE2D25DE3182765408A /* GenerateLookView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3495A45EA0D4F32BDBA60C4 /* GenerateLookView.swift */; };
 		B0E68617CFBDBDC304563538 /* Pets in Resources */ = {isa = PBXBuildFile; fileRef = 8DF76DBD1DB96118754B161E /* Pets */; };
 		B26C6B998B5F0B1EBC1DB8D9 /* Hotkeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EE63116F23A472F0FB705C6 /* Hotkeys.swift */; };
 		B3198E9AF304BA4A9510FAE0 /* SettingsWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42A4F0040250550C736D26B1 /* SettingsWindowController.swift */; };
 		B87B1C919CD6E157D6A4E371 /* KeyboardShortcuts in Frameworks */ = {isa = PBXBuildFile; productRef = E052446F4256FF60BB842473 /* KeyboardShortcuts */; };
 		BBCB17C3402B62C3A3A0A765 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13C6E4669DFB994B140E5BEC /* AppDelegate.swift */; };
-		D635AD771F3C50B1835F87A2 /* AppleTranslationBackend.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2DC984F0311C36F92A8860B /* AppleTranslationBackend.swift */; };
+		CC2773785A8EBE652CD4DD29 /* LookPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94F79445CA8557523AEBA193 /* LookPickerView.swift */; };
 		DA55195866999715DE834CEF /* PetController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 067E64B518761237097852BE /* PetController.swift */; };
+		F0CDC1B908937F606AC3C7A4 /* MemberStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 009338D5AC2D70BFAFB9147A /* MemberStore.swift */; };
 		F0E0CD7F4AB28860974B28C9 /* BubbleController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 654162E9595E49EF4A6EABDD /* BubbleController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		009338D5AC2D70BFAFB9147A /* MemberStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemberStore.swift; sourceTree = "<group>"; };
 		067E64B518761237097852BE /* PetController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PetController.swift; sourceTree = "<group>"; };
 		13C6E4669DFB994B140E5BEC /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		182AA09EFFD3311A3AD599C1 /* SquadSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SquadSettingsView.swift; sourceTree = "<group>"; };
 		3A29F3217CE02F09E721288C /* Squai.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Squai.entitlements; sourceTree = "<group>"; };
+		3DF63AC93ADD30667A0F4FF0 /* BackendsSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackendsSettingsView.swift; sourceTree = "<group>"; };
 		42A4F0040250550C736D26B1 /* SettingsWindowController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsWindowController.swift; sourceTree = "<group>"; };
 		49DCA44985F35F01F6DF20E8 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		624037BF6D7668B1E3694EA9 /* Keychain.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Keychain.swift; sourceTree = "<group>"; };
@@ -39,13 +50,18 @@
 		85E5E38477B6BA50573FB755 /* PetPanel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PetPanel.swift; sourceTree = "<group>"; };
 		8DF76DBD1DB96118754B161E /* Pets */ = {isa = PBXFileReference; lastKnownFileType = folder; name = Pets; path = App/Squai/Resources/Pets; sourceTree = SOURCE_ROOT; };
 		9130D86962D1221C2DA6D8A3 /* PetSpriteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PetSpriteView.swift; sourceTree = "<group>"; };
+		94F79445CA8557523AEBA193 /* LookPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LookPickerView.swift; sourceTree = "<group>"; };
 		9CBE189323AAAB828D227AA5 /* Preferences.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Preferences.swift; sourceTree = "<group>"; };
 		9EE63116F23A472F0FB705C6 /* Hotkeys.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Hotkeys.swift; sourceTree = "<group>"; };
 		A55BE6F7284385D6CE7DCD58 /* SquaiCore */ = {isa = PBXFileReference; lastKnownFileType = folder; name = SquaiCore; path = Packages/SquaiCore; sourceTree = SOURCE_ROOT; };
 		A59E6DDB466F255B9AD074E8 /* StatusItemController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusItemController.swift; sourceTree = "<group>"; };
+		B174F06FBC8E20F03DBF8D1D /* MemberEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemberEditorView.swift; sourceTree = "<group>"; };
+		B3495A45EA0D4F32BDBA60C4 /* GenerateLookView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenerateLookView.swift; sourceTree = "<group>"; };
+		CCFA1CD0141A818CDDB3C9E7 /* LookGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LookGenerator.swift; sourceTree = "<group>"; };
+		D09BC99758653CC3E34D5855 /* SquadController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SquadController.swift; sourceTree = "<group>"; };
+		D2F60DC1D29AD20C1BBBC26E /* ReplaceService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReplaceService.swift; sourceTree = "<group>"; };
 		E7F73D932BB52666DD0FE67B /* Squai.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Squai.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		EF92DE0E38DBB3B95A760204 /* SelectionCapture.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectionCapture.swift; sourceTree = "<group>"; };
-		F2DC984F0311C36F92A8860B /* AppleTranslationBackend.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppleTranslationBackend.swift; sourceTree = "<group>"; };
 		F9AAF00D6E4EC657AED4CFF5 /* BubbleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BubbleView.swift; sourceTree = "<group>"; };
 		FD5FA0690B70FA19D58B41A2 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -63,6 +79,16 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		14AB32C6AD60826D75A1DA78 /* Squad */ = {
+			isa = PBXGroup;
+			children = (
+				CCFA1CD0141A818CDDB3C9E7 /* LookGenerator.swift */,
+				009338D5AC2D70BFAFB9147A /* MemberStore.swift */,
+				D09BC99758653CC3E34D5855 /* SquadController.swift */,
+			);
+			path = Squad;
+			sourceTree = "<group>";
+		};
 		299AE6862DF1471C82C67F1E /* Squai */ = {
 			isa = PBXGroup;
 			children = (
@@ -74,12 +100,12 @@
 				9CBE189323AAAB828D227AA5 /* Preferences.swift */,
 				3A29F3217CE02F09E721288C /* Squai.entitlements */,
 				A59E6DDB466F255B9AD074E8 /* StatusItemController.swift */,
-				83F50C47992118A8447A4A4E /* Backends */,
 				F54038D87DD1351C84B9F8AE /* Bubble */,
 				A2841CCF7A0698C282FEC72C /* Capture */,
 				2F35CE4E1C8B0F01FB59B637 /* Pet */,
 				E86E41A37266DEB381792445 /* Resources */,
 				43363777EB7F75BABEA2F3E3 /* Settings */,
+				14AB32C6AD60826D75A1DA78 /* Squad */,
 			);
 			path = Squai;
 			sourceTree = "<group>";
@@ -114,23 +140,21 @@
 		43363777EB7F75BABEA2F3E3 /* Settings */ = {
 			isa = PBXGroup;
 			children = (
+				3DF63AC93ADD30667A0F4FF0 /* BackendsSettingsView.swift */,
+				B3495A45EA0D4F32BDBA60C4 /* GenerateLookView.swift */,
+				94F79445CA8557523AEBA193 /* LookPickerView.swift */,
+				B174F06FBC8E20F03DBF8D1D /* MemberEditorView.swift */,
 				49DCA44985F35F01F6DF20E8 /* SettingsView.swift */,
 				42A4F0040250550C736D26B1 /* SettingsWindowController.swift */,
+				182AA09EFFD3311A3AD599C1 /* SquadSettingsView.swift */,
 			);
 			path = Settings;
-			sourceTree = "<group>";
-		};
-		83F50C47992118A8447A4A4E /* Backends */ = {
-			isa = PBXGroup;
-			children = (
-				F2DC984F0311C36F92A8860B /* AppleTranslationBackend.swift */,
-			);
-			path = Backends;
 			sourceTree = "<group>";
 		};
 		A2841CCF7A0698C282FEC72C /* Capture */ = {
 			isa = PBXGroup;
 			children = (
+				D2F60DC1D29AD20C1BBBC26E /* ReplaceService.swift */,
 				EF92DE0E38DBB3B95A760204 /* SelectionCapture.swift */,
 			);
 			path = Capture;
@@ -247,18 +271,26 @@
 			buildActionMask = 2147483647;
 			files = (
 				BBCB17C3402B62C3A3A0A765 /* AppDelegate.swift in Sources */,
-				D635AD771F3C50B1835F87A2 /* AppleTranslationBackend.swift in Sources */,
+				068BACBE53864038170BFD2D /* BackendsSettingsView.swift in Sources */,
 				F0E0CD7F4AB28860974B28C9 /* BubbleController.swift in Sources */,
 				598A4838E8555110AC35C2A1 /* BubbleView.swift in Sources */,
+				ABFACAE2D25DE3182765408A /* GenerateLookView.swift in Sources */,
 				B26C6B998B5F0B1EBC1DB8D9 /* Hotkeys.swift in Sources */,
 				1A80492D2BB635E86EB9EF6A /* Keychain.swift in Sources */,
+				61660C21B7FBB7353F98B17D /* LookGenerator.swift in Sources */,
+				CC2773785A8EBE652CD4DD29 /* LookPickerView.swift in Sources */,
+				183E9AC1F353D5C2DCD2EFA8 /* MemberEditorView.swift in Sources */,
+				F0CDC1B908937F606AC3C7A4 /* MemberStore.swift in Sources */,
 				DA55195866999715DE834CEF /* PetController.swift in Sources */,
 				69031F74FFA6D463C50CCDF4 /* PetPanel.swift in Sources */,
 				63E3224E013CFC15CB96E2BD /* PetSpriteView.swift in Sources */,
 				0434707C56F11D7D9AB5863E /* Preferences.swift in Sources */,
+				0B6FF57800379E3B395385EE /* ReplaceService.swift in Sources */,
 				3B77657DD48AC5123643C30C /* SelectionCapture.swift in Sources */,
 				1198B4FF795252432CB82202 /* SettingsView.swift in Sources */,
 				B3198E9AF304BA4A9510FAE0 /* SettingsWindowController.swift in Sources */,
+				8DA5C49069CE5832628166D0 /* SquadController.swift in Sources */,
+				7D1C1AAC40D89FBF1746B9BE /* SquadSettingsView.swift in Sources */,
 				9FB44A362E7D3AE708849A20 /* StatusItemController.swift in Sources */,
 				8CE878129506BA05B2947F3E /* main.swift in Sources */,
 			);

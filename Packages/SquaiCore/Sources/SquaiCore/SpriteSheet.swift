@@ -12,6 +12,20 @@ public enum PetState: Int, CaseIterable, Sendable {
     case waiting
     case running
     case review
+
+    public var rowName: String {
+        switch self {
+        case .idle: "idle"
+        case .runningLeft: "running-left"
+        case .runningRight: "running-right"
+        case .waving: "waving"
+        case .jumping: "jumping"
+        case .failed: "failed"
+        case .waiting: "waiting"
+        case .running: "running"
+        case .review: "review"
+        }
+    }
 }
 
 /// Geometry of the 8x9 atlas (1536x1872, 192x208 cells).

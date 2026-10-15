@@ -42,31 +42,6 @@ public enum ClaudeAPI {
         }
     }
 
-    /// Structured output we ask the model for (parsed leniently from the text block).
-    public struct TranslationPayload: Codable, Equatable, Sendable {
-        public var translation: String
-        public var note: String?
-    }
-
-    public static func systemPrompt(direction: LanguageDirection) -> String {
-        let pair = direction == .jaToEn ? "Japanese to English" : "English to Japanese"
-        return """
-        You are a precise \(pair) translator living on the user's desktop. \
-        Translate the user's text faithfully, keeping register and tone. \
-        Reply with JSON only: {"translation": "<translated text>", "note": "<at most one short sentence on nuance, register, or ambiguity, or null>"}.
-        """
-    }
-
-    public static func makeRequest(text: String, direction: LanguageDirection, model: String = defaultModel) -> Request {
-        Request(
-            model: model,
-            max_tokens: 1024,
-            system: systemPrompt(direction: direction),
-            messages: [.init(role: "user", content: text)],
-            output_config: .init(effort: "low")
-        )
-    }
-
     public static func makeURLRequest(_ body: Request, apiKey: String) throws -> URLRequest {
         var req = URLRequest(url: endpoint)
         req.httpMethod = "POST"
@@ -77,20 +52,20 @@ public enum ClaudeAPI {
         return req
     }
 
-    public static func parseTranslation(_ data: Data, backendID: String) throws -> TranslationResult {
+    public static func makePromptRequest(system: String, user: String, model: String) -> Request {
+        Request(model: model, max_tokens: 1024, system: system,
+                messages: [.init(role: "user", content: user)],
+                output_config: .init(effort: "low"))
+    }
+
+    public static func parseText(_ data: Data) throws -> String {
         let response = try JSONDecoder().decode(Response.self, from: data)
-        if let reason = response.stop_reason, reason == "refusal" {
-            throw TranslationError.malformedResponse
+        if response.stop_reason == "refusal" {
+            throw BackendError.failed(.claude, "refused")
         }
-        let raw = response.text.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !raw.isEmpty else { throw TranslationError.empty }
-        // Tolerate code fences or leading prose around the JSON object.
-        if let start = raw.firstIndex(of: "{"), let end = raw.lastIndex(of: "}"), start < end,
-           let payload = try? JSONDecoder().decode(TranslationPayload.self, from: Data(raw[start...end].utf8)) {
-            let note = payload.note?.trimmingCharacters(in: .whitespacesAndNewlines)
-            return TranslationResult(text: payload.translation, note: (note?.isEmpty ?? true) ? nil : note, backend: backendID)
-        }
-        return TranslationResult(text: raw, note: nil, backend: backendID)
+        let text = response.text.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !text.isEmpty else { throw BackendError.empty }
+        return text
     }
 }
 
@@ -104,33 +79,7 @@ public struct URLSessionTransport: HTTPTransport {
     public init(session: URLSession = .shared) { self.session = session }
     public func send(_ request: URLRequest) async throws -> (Data, HTTPURLResponse) {
         let (data, resp) = try await session.data(for: request)
-        guard let http = resp as? HTTPURLResponse else { throw TranslationError.malformedResponse }
+        guard let http = resp as? HTTPURLResponse else { throw BackendError.failed(.claude, "malformed response") }
         return (data, http)
-    }
-}
-
-public struct ClaudeBackend: TranslationBackend {
-    public let id = "claude"
-    public var model: String
-    public var apiKeyProvider: @Sendable () -> String?
-    public var transport: any HTTPTransport
-
-    public init(model: String = ClaudeAPI.defaultModel,
-                apiKeyProvider: @escaping @Sendable () -> String?,
-                transport: any HTTPTransport = URLSessionTransport()) {
-        self.model = model
-        self.apiKeyProvider = apiKeyProvider
-        self.transport = transport
-    }
-
-    public func translate(_ text: String, direction: LanguageDirection) async throws -> TranslationResult {
-        guard let key = apiKeyProvider(), !key.isEmpty else { throw TranslationError.missingAPIKey }
-        let body = ClaudeAPI.makeRequest(text: text, direction: direction, model: model)
-        let req = try ClaudeAPI.makeURLRequest(body, apiKey: key)
-        let (data, http) = try await transport.send(req)
-        guard (200..<300).contains(http.statusCode) else {
-            throw TranslationError.http(status: http.statusCode, body: String(decoding: data, as: UTF8.self))
-        }
-        return try ClaudeAPI.parseTranslation(data, backendID: id)
     }
 }

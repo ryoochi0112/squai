@@ -4,6 +4,7 @@ import AppKit
 final class PetSpriteView: NSView {
     var frameImage: CGImage? { didSet { needsDisplay = true } }
     var onClick: (() -> Void)?
+    var onRightClick: (() -> Void)?
     var onDragEnd: ((NSPoint) -> Void)?
     private var dragStart: NSPoint?
     private var moved = false
@@ -53,5 +54,9 @@ final class PetSpriteView: NSView {
     override func mouseUp(with event: NSEvent) {
         if moved, let window { onDragEnd?(window.frame.origin) } else { onClick?() }
         dragStart = nil
+    }
+
+    override func rightMouseUp(with event: NSEvent) {
+        onRightClick?()
     }
 }

@@ -1,21 +1,24 @@
 import AppKit
 import SwiftUI
 import SquaiCore
-import Translation
 
 /// Speech bubble panel positioned next to the pet. Auto-hides after `autoHide` seconds.
 @MainActor
 final class BubbleController {
     private let panel: NSPanel
     private let host = NSHostingView(rootView: AnyView(EmptyView()))
-    private unowned let anchor: PetController
-    private var last: BubbleContent?
+    /// Resolved at show time, so a reloaded or hidden member never leaves a stale pet reference.
+    private let anchorFrame: () -> NSRect
     private var hideWork: DispatchWorkItem?
     private var clickMonitor: Any?
     var autoHide: TimeInterval = 12
 
-    init(anchor: PetController) {
-        self.anchor = anchor
+    /// Receives the shown body; the owner pastes it and then hides or re-renders this bubble.
+    var onReplace: (String) -> Void = { _ in }
+    var onOpenSettings: () -> Void = {}
+
+    init(anchorFrame: @escaping () -> NSRect) {
+        self.anchorFrame = anchorFrame
         panel = NSPanel(contentRect: NSRect(x: 0, y: 0, width: 300, height: 120),
                         styleMask: [.borderless, .nonactivatingPanel], backing: .buffered, defer: false)
         panel.isFloatingPanel = true
@@ -29,19 +32,17 @@ final class BubbleController {
     }
 
     func show(_ content: BubbleContent) {
-        last = content
         host.rootView = AnyView(BubbleView(
             content: content,
             onCopy: { [weak self] in
-                NSPasteboard.general.clearContents()
-                NSPasteboard.general.setString($0, forType: .string)
+                ReplaceService.copy($0)
                 self?.hide()
             },
-            onAskClaude: { [weak self] source in
+            onReplace: { [weak self] in self?.onReplace($0) },
+            onOpenSettings: { [weak self] in
                 self?.hide()
-                (NSApp.delegate as? AppDelegate)?.rerunPremium(source: source)
+                self?.onOpenSettings()
             },
-            onDownloadPack: { [weak self] in self?.downloadPack(content) },
             onClose: { [weak self] in self?.hide() }
         ))
         host.layoutSubtreeIfNeeded()
@@ -53,10 +54,6 @@ final class BubbleController {
         installClickMonitor()
     }
 
-    func showLast() {
-        if let last { show(last) }
-    }
-
     func hide() {
         hideWork?.cancel()
         panel.orderOut(nil)
@@ -64,8 +61,9 @@ final class BubbleController {
     }
 
     private func position(size: NSSize) {
-        let pet = anchor.panel.frame
-        let screen = anchor.panel.screen?.visibleFrame ?? NSScreen.main?.visibleFrame ?? .zero
+        let pet = anchorFrame()
+        let center = NSPoint(x: pet.midX, y: pet.midY)
+        let screen = (NSScreen.screens.first { $0.frame.contains(center) } ?? NSScreen.main)?.visibleFrame ?? .zero
         var origin = NSPoint(x: pet.minX - size.width - 8, y: pet.maxY - size.height)
         if origin.x < screen.minX { origin.x = pet.maxX + 8 }
         origin.y = max(screen.minY, min(origin.y, screen.maxY - size.height))
@@ -83,15 +81,6 @@ final class BubbleController {
         if clickMonitor != nil { return }
         clickMonitor = NSEvent.addGlobalMonitorForEvents(matching: [.leftMouseDown, .rightMouseDown]) { [weak self] _ in
             Task { @MainActor in self?.hide() }
-        }
-    }
-
-    private func downloadPack(_ content: BubbleContent) {
-        guard case .languagePackMissing(let s, let t) = content else { return }
-        hide()
-        Task {
-            // Triggers the system download sheet; see AppleTranslationBackend for the session variant.
-            await AppleTranslationBackend.prepare(source: s, target: t)
         }
     }
 }
