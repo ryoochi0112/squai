@@ -138,8 +138,6 @@ final class BackendRouterTests: XCTestCase {
 
     func testCLIResultAuthEmptyAndNonzeroErrorsCleanUp() async throws {
         let cases: [(CLIResult, (Backend) -> BackendError)] = [
-            (CLIResult(exitCode: 0, stdout: "", stderr: "", output: "Not logged in. Run claude"), { .notLoggedIn($0) }),
-            (CLIResult(exitCode: 0, stdout: "", stderr: "", output: "not logged in"), { .notLoggedIn($0) }),
             (CLIResult(exitCode: 0, stdout: "", stderr: "", output: " \n\t "), { _ in .empty }),
             (CLIResult(exitCode: 2, stdout: "LOGIN required", stderr: "", output: ""), { .notLoggedIn($0) }),
             (CLIResult(exitCode: 2, stdout: "", stderr: "", output: "Please log in"), { .notLoggedIn($0) }),
@@ -155,6 +153,21 @@ final class BackendRouterTests: XCTestCase {
                                     runner: RouterRunner(handler: { _ in result }), directory: { directory })
                 await assertError(router, backend: backend, expected: expected(backend))
                 XCTAssertFalse(FileManager.default.fileExists(atPath: directory.path))
+            }
+        }
+    }
+
+    func testExitZeroOutputMentioningLoginIsReturnedAsResult() async throws {
+        for backend in [Backend.claude, .chatgpt] {
+            for text in ["I am not logged in", "Please log in to continue", "/login"] {
+                let directory = try CLILocator.makeRunDirectory()
+                defer { try? FileManager.default.removeItem(at: directory) }
+                let router = router(locate: { _ in URL(fileURLWithPath: "/stub/cli") },
+                                    runner: RouterRunner(handler: { _ in
+                    CLIResult(exitCode: 0, stdout: text, stderr: "", output: text)
+                }), directory: { directory })
+                let output = try await router.run(backend: backend, prompt: prompt)
+                XCTAssertEqual(output, text)
             }
         }
     }

@@ -42,11 +42,22 @@ public enum CLIBuilders {
         outputFile: outputFile)
     }
 
-    private static func environment(path: String) -> [String: String] {
+    /// Variables copied from the app into every CLI child. `claude` reads its login from the
+    /// Keychain by `USER`; without it the CLI reports "Not logged in".
+    public static let passthroughVariables = ["HOME", "USER", "LOGNAME", "TMPDIR", "LANG",
+                                              "__CF_USER_TEXT_ENCODING"]
+
+    public static func childEnvironment(path: String,
+                                        base: [String: String] = ProcessInfo.processInfo.environment)
+        -> [String: String] {
         var result = ["PATH": path]
-        if let home = ProcessInfo.processInfo.environment["HOME"] {
-            result["HOME"] = home
+        for name in passthroughVariables {
+            if let value = base[name] { result[name] = value }
         }
         return result
+    }
+
+    private static func environment(path: String) -> [String: String] {
+        childEnvironment(path: path)
     }
 }

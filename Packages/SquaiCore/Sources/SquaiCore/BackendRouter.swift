@@ -62,10 +62,8 @@ public struct BackendRouter: Sendable {
                 }
                 throw Self.exitError(backend: backend, code: result.exitCode, stderr: result.stderr)
             }
+            // Exit 0 is a real result, even when the text mentions logging in.
             let output = result.output.trimmingCharacters(in: .whitespacesAndNewlines)
-            if output.lowercased().contains("not logged in") {
-                throw BackendError.notLoggedIn(backend)
-            }
             guard !output.isEmpty else { throw BackendError.empty }
             return output
         }

@@ -48,3 +48,38 @@ public struct CLILocator: Sendable {
         }
     }
 }
+
+/// The one CLI lookup shared by runs and Settings → Backends. The login-shell PATH costs a shell
+/// launch, so it is cached and only re-read by `refresh()` (launch and Recheck). The executable
+/// itself is located again on every call, so a CLI removed after launch is never handed to a run.
+public final class CLIResolver: @unchecked Sendable {
+    private let lock = NSLock()
+    private var loginShellPath: String?
+    private let home: URL
+    private let isExecutable: @Sendable (String) -> Bool
+    private let fetchLoginShellPath: @Sendable () async -> String?
+
+    public init(home: URL,
+                isExecutable: @escaping @Sendable (String) -> Bool = { FileManager.default.isExecutableFile(atPath: $0) },
+                fetchLoginShellPath: @escaping @Sendable () async -> String?) {
+        self.home = home
+        self.isExecutable = isExecutable
+        self.fetchLoginShellPath = fetchLoginShellPath
+    }
+
+    public func refresh() async {
+        let path = await fetchLoginShellPath()
+        lock.withLock { loginShellPath = path }
+    }
+
+    public func locate(_ backend: Backend) -> URL? {
+        let name = backend == .claude ? "claude" : "codex"
+        return CLILocator().locate(name, loginShellPath: lock.withLock { loginShellPath }, home: home,
+                                   isExecutable: isExecutable)
+    }
+
+    public func childPATH(for cli: URL) -> String {
+        CLILocator.childPATH(cliDir: cli.deletingLastPathComponent(),
+                             loginShellPath: lock.withLock { loginShellPath }, home: home)
+    }
+}

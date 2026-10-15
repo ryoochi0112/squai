@@ -61,10 +61,6 @@ final class HatchInvocationTests: XCTestCase {
     }
 
     private func expectedEnvironment(path: String) -> [String: String] {
-        var environment = ["PATH": path]
-        if let home = ProcessInfo.processInfo.environment["HOME"] {
-            environment["HOME"] = home
-        }
-        return environment
+        CLIBuilders.childEnvironment(path: path, base: ProcessInfo.processInfo.environment)
     }
 }

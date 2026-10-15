@@ -22,6 +22,14 @@ struct CLIProbe: Sendable {
     }
 }
 
+extension CLIResolver {
+    /// Shared by the run router and Settings → Backends, so Recheck changes what runs use.
+    static let shared = CLIResolver(home: FileManager.default.homeDirectoryForCurrentUser,
+                                    fetchLoginShellPath: {
+        await CLILocator.loginShellPATH(shell: ProcessInfo.processInfo.environment["SHELL"] ?? "/bin/zsh")
+    })
+}
+
 struct BackendsSettingsView: View {
     @State private var apiKey = Keychain.read(service: Keychain.anthropicService) ?? ""
     @State private var keySet = !(Keychain.read(service: Keychain.anthropicService) ?? "").isEmpty
@@ -74,9 +82,10 @@ struct BackendsSettingsView: View {
     private func recheck() async {
         guard !checking else { return }
         checking = true
-        let probe = await CLIProbe.current()
-        claudeCLI = probe.locate("claude")
-        codexCLI = probe.locate("codex")
+        let resolver = CLIResolver.shared
+        await resolver.refresh()
+        claudeCLI = resolver.locate(.claude)
+        codexCLI = resolver.locate(.chatgpt)
         keySet = !(Keychain.read(service: Keychain.anthropicService) ?? "").isEmpty
         checking = false
     }

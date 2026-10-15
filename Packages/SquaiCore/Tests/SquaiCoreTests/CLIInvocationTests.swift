@@ -100,9 +100,18 @@ final class CLIInvocationTests: XCTestCase {
         }
     }
 
+    func testChildEnvironmentPassesLoginIdentityAndLocaleOnly() {
+        let base = ["HOME": "/Users/u", "USER": "u", "LOGNAME": "u", "TMPDIR": "/var/folders/x/T/",
+                    "LANG": "ja_JP.UTF-8", "__CF_USER_TEXT_ENCODING": "0x1F5:0x1:0xE",
+                    "PATH": "/launchd/path", "ANTHROPIC_API_KEY": "stub-secret", "SHELL": "/bin/zsh"]
+        XCTAssertEqual(CLIBuilders.childEnvironment(path: "/test/bin", base: base), [
+            "PATH": "/test/bin", "HOME": "/Users/u", "USER": "u", "LOGNAME": "u",
+            "TMPDIR": "/var/folders/x/T/", "LANG": "ja_JP.UTF-8", "__CF_USER_TEXT_ENCODING": "0x1F5:0x1:0xE"
+        ])
+        XCTAssertEqual(CLIBuilders.childEnvironment(path: "/test/bin", base: [:]), ["PATH": "/test/bin"])
+    }
+
     private func expectedEnvironment() -> [String: String] {
-        var env = ["PATH": "/test/bin"]
-        if let home = ProcessInfo.processInfo.environment["HOME"] { env["HOME"] = home }
-        return env
+        CLIBuilders.childEnvironment(path: "/test/bin", base: ProcessInfo.processInfo.environment)
     }
 }

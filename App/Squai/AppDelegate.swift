@@ -1,18 +1,11 @@
 import AppKit
 import SquaiCore
 
-/// Everything resolved once at launch: where the CLIs live and the PATH they need.
 /// A member's latest result and the app its selection came from (Replace pastes only there).
 private struct MemberResult {
     let id = UUID()
     var body: String
     var context: CaptureContext
-}
-
-private struct CLICache: Sendable {
-    var executables: [Backend: URL]
-    var loginShellPath: String?
-    var home: URL
 }
 
 @MainActor
@@ -35,7 +28,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var replacing = false
 
     func applicationDidFinishLaunching(_ notification: Notification) {
-        routerTask = Task { await Self.makeRouter() }
+        let resolver = CLIResolver.shared
+        routerTask = Task {
+            await resolver.refresh()
+            return Self.makeRouter(resolver: resolver)
+        }
 
         let support = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
             .appendingPathComponent("squai", isDirectory: true)
@@ -101,20 +98,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     // MARK: Router
 
-    private static func makeRouter() async -> BackendRouter {
-        let home = FileManager.default.homeDirectoryForCurrentUser
-        let shell = ProcessInfo.processInfo.environment["SHELL"] ?? "/bin/zsh"
-        let loginPath = await CLILocator.loginShellPATH(shell: shell)
-        var executables: [Backend: URL] = [:]
-        for (backend, name) in [(Backend.claude, "claude"), (Backend.chatgpt, "codex")] {
-            executables[backend] = CLILocator().locate(name, loginShellPath: loginPath, home: home,
-                                                       isExecutable: { FileManager.default.isExecutableFile(atPath: $0) })
-        }
-        let cache = CLICache(executables: executables, loginShellPath: loginPath, home: home)
-        return BackendRouter(
-            locateCLI: { cache.executables[$0] },
-            childPATH: { CLILocator.childPATH(cliDir: $0.deletingLastPathComponent(),
-                                              loginShellPath: cache.loginShellPath, home: cache.home) },
+    /// The router asks the shared resolver on every run, so Settings → Backends → Recheck
+    /// and a CLI removed after launch take effect without a relaunch.
+    private static func makeRouter(resolver: CLIResolver) -> BackendRouter {
+        BackendRouter(
+            locateCLI: { resolver.locate($0) },
+            childPATH: { resolver.childPATH(for: $0) },
             claudeKey: { Keychain.read(service: Keychain.anthropicService) },
             runner: CLIRunner(),
             transport: URLSessionTransport(),

@@ -35,17 +35,13 @@ public enum HatchInvocation {
     public static let timeout: TimeInterval = 2400
 
     public static func make(codex: URL, description: String, runDir: URL, path: String) -> CLIInvocation {
-        var environment = ["PATH": path]
-        if let home = ProcessInfo.processInfo.environment["HOME"] {
-            environment["HOME"] = home
-        }
         let prompt = "Use $hatch-pet to create a pet. Description: \(description). Package the final `pet.json` and spritesheet into ./out/ (the staging dir) instead of ~/.codex/pets. Do not write anywhere else."
         return CLIInvocation(executable: codex,
                              arguments: ["exec", "--skip-git-repo-check", "--sandbox", "workspace-write",
                                          "--color", "never", "-C", runDir.path, "-"],
                              stdin: prompt,
                              cwd: runDir,
-                             environment: environment,
+                             environment: CLIBuilders.childEnvironment(path: path),
                              timeout: timeout)
     }
 
